@@ -16,7 +16,7 @@ body{
 
 .Aback{
 	display: inline-block;
-	margin-left: 2%;
+	margin-right: 4%;
 }
 
 .BackMenu{
@@ -40,6 +40,11 @@ body{
 	margin-left: 20%;
 	margin-bottom: 1%;
 }
+
+#subm{
+	margin-top: 1%;
+}
+
 .btn-class:visited {
 	text-decoration: none;
 }
@@ -179,6 +184,7 @@ body{
 	top: 8%;
 	right: 3%;
 }
+
 
 .button {
 	border: 1px solid #0a3c59;

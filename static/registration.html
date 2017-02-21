@@ -7,69 +7,58 @@
     <link href="./css/bootstrap.min.css" rel="stylesheet">
 
     <link href="./css/starter-template.css" rel="stylesheet">
-    <title>Меню</title>
+    <title>Gem-TD Регистрация</title>
   </head>
 
   <body background="img\back_white.jpg" no-repe>
 
     <img src="img/Pickaxe1.png" id="kirka">
 
-    <a href="#" class="Aback"><img class = "back"src="img\back.png"> </a>
-    <p class="BackMenu">Обратно в меню</p>
+    <div align="right">
+       <a href="#" class="Aback"><img class = "back"src="img\back.png" > </a>
+       <p class="BackMenu">Обратно в меню</p>
+    </div>
 
-    <div class="registration" >
+    <div class="container registration" >
 
       <form class="form-horizontal">
 
         <div class="row line">  
           <label for="inputEmail3" class="col-xs-2 col-sm-2 col-md-2 control-label">Email</label>
           <div class="col-xs-5 col-sm-5 col-md-5">
-            <input type="email" class="form-control input-lg" id="inputEmail3" placeholder="Enter your email">
+            <input type="email" class="form-control input-lg" id="inputEmail3" placeholder="Введите ваш email" required>
           </div>
         </div>    
         
         <div class="row line">  
-          <label for="inputlogin" class="col-xs-2 col-sm-2 col-md-2 control-label">login</label>
+          <label for="inputlogin" class="col-xs-2 col-sm-2 col-md-2 control-label">Логин</label>
           <div class="col-xs-5 col-sm-5 col-md-5">
-            <input type="text" class="form-control input-lg" id="inputlogin" placeholder="Enter your login">
+            <input type="text" class="form-control input-lg" id="inputlogin" placeholder="Введите ваш логин" required>
           </div>
         </div>  
 
         <div class="row line">
-          <label for="InpPass" class="col-xs-2 col-sm-2 col-md-2 control-label">Password</label>
+          <label for="InpPass" class="col-xs-2 col-sm-2 col-md-2 control-label">Пароль</label>
           <div class="col-xs-5 col-sm-5 col-md-5">
-            <input type="password" class="form-control input-lg" id="InpPass" placeholder="Enter your password">
+            <input type="password" class="form-control input-lg" id="InpPass" placeholder="Введите ваш пароль" required>
           </div>
         </div>     
 
         <div class="row">
-          <label for="InpRPass" class="col-xs-3 col-sm-3 col-md-3 col-md-offset-1 col-sm-offset-1 col-xs-offset-1 control-label">Repeat Password</label>
+          <label for="InpRPass" class="col-xs-3 col-sm-3 col-md-3 col-md-offset-1 col-sm-offset-1 col-xs-offset-1 control-label">Повторите пароль</label>
           <div class="col-xs-4 col-sm-4 col-md-4">
-            <input type="password" class="form-control input-lg" id="InpRPass" placeholder="Repeat your password">
+            <input type="password" class="form-control input-lg" id="InpRPass" placeholder="Повторите пароль" required>
           </div>
         </div>     
         
-        <div  align="center">
-          <button type="submit" class="btn btn-default btn-lg">Register!</button>
+        <div  class = "row" align="center" id="subm">
+          <button type="submit" class="btn btn-default btn-lg">Регистрация!</button>
         </div>
       </form>
       
   </div>  
 
 
-    <div align="right" id="divtxt">
-      <h3 class = "txt">Вы вошли как </h3>
-      <h2 class = "txt"> Гость </h2>
-    </div>
-
-    <div align="right" id = "divbut">
-      <span>
-        <a href='#' class='button' id = "registr">Регистрация</a>
-      </span>
-      <span>
-        <a href='#' class='button' id="login">Вход</a>
-      </span>
-    </div>
 
   </body>
 </html>
