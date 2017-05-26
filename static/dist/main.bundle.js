@@ -23503,7 +23503,7 @@ class Back extends __WEBPACK_IMPORTED_MODULE_0__BaseBlock_baseblock_js__["a" /* 
 	render() {
 		this.get().appendChild(this.link.get());
 		this.link.get().appendChild(this.image.get());
-		this.get().appendChild(this.text.get());
+		this.link.get().appendChild(this.text.get());
 	}
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Back;
