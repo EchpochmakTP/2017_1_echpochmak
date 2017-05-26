@@ -35,6 +35,6 @@ class Back extends BaseBlock {
 	render() {
 		this.get().appendChild(this.link.get());
 		this.link.get().appendChild(this.image.get());
-		this.get().appendChild(this.text.get());
+		this.link.get().appendChild(this.text.get());
 	}
 }
