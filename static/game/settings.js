@@ -42,6 +42,10 @@ class Settings {
 		this.pentagonTpwerDamage = 10;
 		this.starTowerDamage = 10;
 
+		this.circleWaveMinRadius = this.fieldSize / 2;
+		this.circleWaveMaxRadius = 2 * this.fieldSize;
+		this.waveWidth = 8;
+
 		this.circleRed = {
 			name: 'circleRed',
 			color: '#FF0000',

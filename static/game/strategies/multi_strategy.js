@@ -6,6 +6,7 @@ import PentagonTower from '../gameObjects/pentagontower.js'
 import StarTower from '../gameObjects/startower.js'
 import VariantBlock from '../variantBlock.js'
 import Arrow from '../gameObjects/arrow.js'
+import TowerWave from '../gameObjects/towerwave.js'
 import Mediator from '../mediator.js'
 import Events from '../events.js'
 import WebSocketService from '../transport.js'
@@ -144,8 +145,8 @@ class MultiplayerStrategy {
 
 		this.state = {};
 
-		this.mediator.subscribe(Events.MULTIPLAYER_NEW_MAP_SNAPSHOT, 
-			this.generateTower.bind(this));
+		this.mediator.subscribe(Events.MULTIPLAYER_NEW_MAP_SNAPSHOT, this.generateTower.bind(this));
+		this.mediator.subscribe(Events.NEW_WAVE_STARTED, this.gameWave.bind(this));
 	}
 
 	gameStep() {
@@ -538,21 +539,27 @@ class MultiplayerStrategy {
 		}
 	}
 
-	gameWave() {
+	gameWave(arg) {
 
-		if (this.path.length === 0) {
-			this.path = this.findPath(this.settings.checkpoints);
+		this.path = arg.route;
+  
+		for (let i = 0; i < this.settings.mapSize; i++){
+			for (let j = 0; j < this.settings.mapSize; j++){
+				if (this.fields[i][j].tower === 0) {
+					this.fields[i][j]['field'].removeEventListener('click', () => {this.onClickField.call(this, this.fields[i][j])});
+					this.fields[i][j]['field'].removeEventListener('tap', () => {this.onClickField.call(this, this.fields[i][j])});
+					this.fields[i][j]['field'].removeEventListener('mouseover', () => {this.onOverField.call(this, this.fields[i][j])});
+					this.fields[i][j]['field'].removeEventListener('mouseout', () => {this.onOutField.call(this, this.fields[i][j])});
+				}
+			}
 		}
 
 		if (this.enemiesNumber < this.settings.numberMonstersInWave) {
 			if (this.betweenEnemies > 10) {
-				let monster = new Monster(this.settings.triangl);
+				let monster = new Monster(this.settings.triangl, this.enemiesNumber);
 				monster.health += this.settings.addHPInWave * (this.wave - 1);
 				this.enemies.push(monster);
 				this.betweenEnemies = 0;
-				for (let i = 0; i < this.fieldsWithCircles.length; i++){
-					this.fieldsWithCircles[i].tower.bulletes.push([]);
-				}
 				this.enemiesNumber++;
 			} else {
 				this.betweenEnemies++;
@@ -560,68 +567,46 @@ class MultiplayerStrategy {
 		}
 
 		for (let i = 0; i < this.fieldsWithCircles.length; i++){
-			for (let j = 0; j < this.enemies.length; j++){
-				let distY = this.enemies[j].draw.getY() - this.fieldsWithCircles[i].tower.draw.getY();
-				let distX = this.enemies[j].draw.getX() - this.fieldsWithCircles[i].tower.draw.getX();
-				if (Math.pow(distX * distX + distY * distY, 0.5) <= this.fieldsWithCircles[i].tower.radiusFight){
-					if (this.betweenBulles >= 2) {
-						this.fieldsWithCircles[i].tower.fire(j);
-						this.betweenBulles = 0;
-						break;	
-					} else {
-						this.betweenBulles++;
-					}
-					
-				};
-			};
-			for (let j = 0; j < this.fieldsWithCircles[i].tower.bulletes.length; j++){
-				for (let s = 0; s < this.fieldsWithCircles[i].tower.bulletes[j].length; s++){
-					let distY = this.enemies[j].draw.getY() - this.fieldsWithCircles[i].tower.bulletes[j][s].getY();
-					let distX = this.enemies[j].draw.getX() - this.fieldsWithCircles[i].tower.bulletes[j][s].getX();
-					if (Math.abs(distX) < this.enemies[j].kind.size && Math.abs(distY) < this.enemies[j].kind.size){
-						this.fieldsWithCircles[i].tower.bulletes[j].splice(s, 1);
-						this.enemies[j].health -= this.settings.circleTowerDamage;
-						continue;
-					}
-					let stepX = this.settings.bulletStep / Math.pow(1 + Math.pow(distY/distX, 2), 0.5) * Math.abs(distX) / distX;
-					let stepY = Math.pow(this.settings.bulletStep * this.settings.bulletStep - stepX * stepX, 0.5) * Math.abs(distY) / distY;
-					this.fieldsWithCircles[i].tower.bulletes[j][s].setX(this.fieldsWithCircles[i].tower.bulletes[j][s].getX() + stepX);
-					this.fieldsWithCircles[i].tower.bulletes[j][s].setY(this.fieldsWithCircles[i].tower.bulletes[j][s].getY() + stepY);
-				};
-			};
-		};
-
-		for (let i = 0; i < this.fieldsWithPentagons.length; i++) {
-			this.fieldsWithPentagons[i].tower.bulletes = 0;
-			for (let j = 0; j < this.enemies.length; j++) {
-				let distY = this.enemies[j].draw.getY() - this.fieldsWithPentagons[i].tower.draw.getY();
-				let distX = this.enemies[j].draw.getX() - this.fieldsWithPentagons[i].tower.draw.getX();
-				if (Math.pow(distX * distX + distY * distY, 0.5) <= this.fieldsWithPentagons[i].tower.radiusFight){
-					this.fieldsWithPentagons[i].tower.fire(this.enemies[j]);
-					break;
-				}
+			if ((this.fieldsWithCircles[i].tower.waves.length === 0) || (this.fieldsWithCircles[i].tower.waves[length - 1].draw.getRadius() > this.settings.circleWaveMinRadius)) {
+				let wave = new TowerWave(
+					this.fieldsWithCircles[i].tower.kind,
+					this.fieldsWithCircles[i].tower.draw.getX(),
+					this.fieldsWithCircles[i].tower.draw.getY(),
+					this.fieldsWithCircles[i].tower.draw.getRadius()
+				)
+				this.fieldsWithCircles[i].tower.waves.push(wave);
 			}
+			if (this.fieldsWithCircles[i].tower.waves[0].draw.getRadius() > this.settings.circleWaveMaxRadius) {
+				this.fieldsWithCircles[i].tower.waves.unshift();
+			}
+			for (let j = 0; j < this.fieldsWithCircles[i].tower.waves.length; j++) {
+				let oldInnerRadius = this.fieldsWithCircles[i].tower.waves[j].draw.getInnerRadius()
+				let oldOuterRadius = this.fieldsWithCircles[i].tower.waves[j].draw.getOuterRadius()
+				this.fieldsWithCircles[i].tower.waves[j].draw.setInnerRadius(oldInnerRadius + 2);
+				this.fieldsWithCircles[i].tower.waves[j].draw.setOuterRadius(oldOuterRadius + 2);
+  			}
 		}
 
-		for (let i = 0; i < this.fieldsWithStars.length; i++) {
-			this.fieldsWithStars[i].tower.bulletes = [];
-			for (let j = 0; j < this.enemies.length; j++) {
-				let distY = this.enemies[j].draw.getY() - this.fieldsWithStars[i].tower.draw.getY();
-				let distX = this.enemies[j].draw.getX() - this.fieldsWithStars[i].tower.draw.getX();
-				if (Math.pow(distX * distX + distY * distY, 0.5) <= this.fieldsWithStars[i].tower.radiusFight){
-					this.fieldsWithStars[i].tower.fire(this.enemies[j]);
-					break;
-				}
-			}
-			for (let j = this.enemies.length - 1; j >= 0; j--) {
-				let distY = this.enemies[j].draw.getY() - this.fieldsWithStars[i].tower.draw.getY();
-				let distX = this.enemies[j].draw.getX() - this.fieldsWithStars[i].tower.draw.getX();
-				if (Math.pow(distX * distX + distY * distY, 0.5) <= this.fieldsWithStars[i].tower.radiusFight){
-					this.fieldsWithStars[i].tower.fire(this.enemies[j]);
-					break;
-				}
-			}
+		for (let i = 0; i < this.enemies.length; i++) {
+			let color = this.enemies[i].kind.color;
+			this.enemies[i].draw.setFill(color);
+			if (this.enemies[i].killed) {
+				this.enemies.splice(i, 1);
+				this.score++;
+				this.mediator.emit(Events.GET_SCORE, {
+					score: this.score
+				})
+  			}
 		}
+
+		for (let i = 0; i < this.enemies.length; i++) {
+			for (let j = 0; j < arg.enemyDamages.length; j++) {
+				if ((this.enemies[i].number === arg.enemyDamages[j].enemy.number) && (Math.abs(this.enemies[i].draw.getX() - arg.enemyDamages[j].coordinateX) < 10) && (Math.abs(this.enemies[i].draw.getY() - arg.enemyDamages[j].coordinateY) < 10)) {
+					this.enemies[i].paintRed();
+					this.enemies[i].killed = arg.enemyDamages[j].enemy.dead;
+  				}
+  			}
+  		}
 
 		for (let i = 0; i < this.enemies.length; i++) {
 			let place = this.path[this.enemies[i].numberTurns];
@@ -637,33 +622,11 @@ class MultiplayerStrategy {
 			let stepY = Math.pow(this.settings.monsterStep * this.settings.monsterStep - stepX * stepX, 0.5) * Math.abs(distY) / distY;
 			this.enemies[i].draw.setX(this.enemies[i].draw.getX() + stepX);
 			this.enemies[i].draw.setY(this.enemies[i].draw.getY() + stepY);
-
-			if (this.enemies[i].killed) {
-				this.enemies.splice(i, 1);
-				for (let j = 0; j < this.fieldsWithCircles.length; j++){
-					this.fieldsWithCircles[j].tower.bulletes.splice(i, 1);
-				}
-				i--;
-				continue;
-			}
-
-			if (this.enemies[i].health <= 0) {
-				this.enemies[i].killedTics++;
-				this.enemies[i].killed = true;
-				this.enemies[i].paintRed();
-				this.score++;
-				this.mediator.emit(Events.GET_SCORE, {
-					score: this.score
-				})
-			}
 		}
 
 		for (let i = 0; i < this.enemies.length; i++) {
 			if (this.enemies[i].numberTurns >= this.path.length) {
 				this.enemies.splice(i, 1);
-				for (let s = 0; s < this.fieldsWithCircles.length; s++){
-					this.fieldsWithCircles[s].tower.bulletes.splice(i, 1);
-				}
 				i--;
 				let damage = this.settings.damage + this.settings.addDamageInWave * (this.wave - 1);
 				this.throneHealth -= damage;
@@ -682,9 +645,6 @@ class MultiplayerStrategy {
 		if ((this.enemies.length === 0) && (this.enemiesNumber >= this.settings.numberMonstersInWave)) {
 			this.status = 'playerStep';
 			this.wave++;
-			this.mediator.emit(Events.NEW_WAVE_STARTED, {
-				wave: this.wave
-			});
 
 			this.enemiesNumber = 0;
 			for (let i = 0; i < this.settings.mapSize; i++){
@@ -698,51 +658,15 @@ class MultiplayerStrategy {
 				}
 			}
 			for (let i = 0; i < this.fieldsWithCircles.length; i++){
-				this.fieldsWithCircles[i].tower.bulletes = [];
+				this.fieldsWithCircles[i].tower.waves = [];
 			}
 			for (let i = 0; i < this.fieldsWithPentagons.length; i++){
-				this.fieldsWithPentagons[i].tower.bulletes = 0;
+				this.fieldsWithPentagons[i].tower.waves = [];
 			}
 			for (let i = 0; i < this.fieldsWithStars.length; i++){
-				this.fieldsWithStars[i].tower.bulletes = [];
+				this.fieldsWithStars[i].tower.waves = [];
 			}
 			this.path = [];
 		}
-	}
-
-	findPath(checkpoints) {
-
-		let matrix = Array(this.settings.mapSize);
-		for (let i = 0; i < this.settings.mapSize; ++i) {
-			matrix[i] = Array(this.settings.mapSize);
-		}
-
-		for (let i = 0; i < this.settings.mapSize; ++i) {
-			for (let j = 0; j < this.settings.mapSize; ++j) {
-				if (this.fields[i][j].tower && this.fields[i][j].tower !== 0) {
-					matrix[j][i] = 1;
-				} else {
-					matrix[j][i] = 0;
-				}
-			}
-		}
-
-		const finder = new PF.BiAStarFinder({
-			allowDiagonal: true,
-			heuristic: PF.Heuristic.euclidean
-		});
-
-		let path = [];
-		for (let i = 1; i < checkpoints.length; i++) {
-			let subStart = checkpoints[i - 1];
-			let subFinish = checkpoints[i];
-
-			const grid = new PF.Grid(matrix);
-			let subPath = finder.findPath(subStart[0], subStart[1], subFinish[0], subFinish[1], grid);
-
-			path = path.concat(subPath);
-		}
-
-		return(path);
 	}
 }

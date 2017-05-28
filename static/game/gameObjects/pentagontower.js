@@ -21,6 +21,7 @@ class PentagonTower {
 		this.kind = name;
 		this.bulletes = 0;
 		this.radiusFight = name.radiusFight;
+		this.waves = [];
 	}
 
 	fire(enemie) {

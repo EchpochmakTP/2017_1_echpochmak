@@ -90,7 +90,16 @@ class Scene {
 			for (let j = 0; j < this.state.fieldsWithStars[i].tower.bulletes.length; j++) {
 				this.gameLayer.add(this.state.fieldsWithStars[i].tower.bulletes[j]);
 			}
-		}		
+		}
+
+		let fieldWith = this.state.fieldsWithCircles + this.state.fieldsWithPentagons + this.state.fieldsWithStars;
+
+		for (let i = 0; i < fieldWith.length; i++) {
+			for (let j = 0; j < fieldWith[i].tower.waves.length; j++) {
+				this.gameLayer.add(fieldWith[i].tower.waves[j].draw);
+			}
+		}
+
 
 		for (let i = 0; i < this.state.checkpoints.length ; i++) {
 			this.gameLayer.add(this.state.checkpoints[i].draw);
