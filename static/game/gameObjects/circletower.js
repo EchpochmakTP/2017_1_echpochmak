@@ -15,6 +15,7 @@ class CircleTower {
 		});
 		this.kind = name;
 		this.bulletes = [];
+		this.waves = [];
 		this.radiusFight = name.radiusFight;
 		this.numberChangesColors = this.settings.numberChangesColors;
 	}

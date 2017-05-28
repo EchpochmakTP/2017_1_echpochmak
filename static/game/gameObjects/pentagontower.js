@@ -20,6 +20,7 @@ class PentagonTower {
 		});
 		this.kind = name;
 		this.bulletes = 0;
+		this.waves = [];
 		this.radiusFight = name.radiusFight;
 	}
 

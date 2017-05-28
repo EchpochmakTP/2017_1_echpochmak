@@ -148,6 +148,10 @@ class Settings {
 			this.pentagonGYR
 		];
 
+		this.circleWaveMinRadius = this.fieldSize / 2;
+		this.circleWaveMaxRadius = 2 * this.fieldSize;
+		this.waveWidth = 8;
+
 		this.variantsX = this.hintsFieldElement.offsetWidth * 0.05;
 		this.variantsY = this.mapY;
 		this.variantsXSize = this.hintsFieldElement.offsetWidth * 0.9;

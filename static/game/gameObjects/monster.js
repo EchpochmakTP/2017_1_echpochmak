@@ -3,7 +3,7 @@ import Konva from 'konva';
 
 export default
 class Monster {
-	constructor(name) {
+	constructor(name, index) {
 		this.settings = new Settings();
 		this.draw = new Konva.RegularPolygon({
 			x: this.settings.mapX,
@@ -14,6 +14,7 @@ class Monster {
 			stroke: 'black',
 			strokeWidth: 0
 		});
+		this.number = index
 		this.kind = name;
 		this.health = name.health;
 		this.numberTurns = 0;
