@@ -18488,7 +18488,7 @@ class Settings {
 		this.gameFieldElement = document.getElementById(this.gameFieldId);
 		this.hintsFieldElement = document.getElementById(this.hintsFieldId);
 
-		this.mapSize = 10;
+		this.mapSize = 15;
 
 		this.checkpoints = [[0, 0], [0, this.mapSize - 1], [this.mapSize - 1, 0], [this.mapSize - 1, this.mapSize - 1]];
 
