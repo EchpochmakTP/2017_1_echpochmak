@@ -9,7 +9,7 @@ class Settings {
 		this.gameFieldElement = document.getElementById(this.gameFieldId);
 		this.hintsFieldElement = document.getElementById(this.hintsFieldId);
 
-		this.mapSize = 10;
+		this.mapSize = 15;
 
 		this.checkpoints = [[0, 0], [0, this.mapSize - 1], [this.mapSize - 1, 0], [this.mapSize - 1, this.mapSize - 1]];
 
@@ -44,7 +44,8 @@ class Settings {
 
 		this.circleWaveMinRadius = this.fieldSize;
 		this.circleWaveMaxRadius = 2 * this.fieldSize;
-		this.waveWidth = 8;
+		this.waveWidth = 5;
+		this.waveStep = 2;
 
 		this.circleRed = {
 			name: 'circleRed',
