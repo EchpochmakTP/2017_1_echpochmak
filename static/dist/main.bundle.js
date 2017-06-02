@@ -370,6 +370,9 @@ const Events = {
 	MULTIPLAYER_GET_SCORE: 			23,
 	MULTIPLAYER_THRONE_DAMAGE: 		24,
 
+	PAUSE: 		25,
+	PLAY: 		26,
+
 }
 
 /* harmony default export */ __webpack_exports__["a"] = (Events);
@@ -20400,6 +20403,8 @@ class GameManager {
 		this.mediator.subscribe(__WEBPACK_IMPORTED_MODULE_2__events_js__["a" /* default */].PLAY_AGAIN, this.start.bind(this));
 		this.mediator.subscribe(__WEBPACK_IMPORTED_MODULE_2__events_js__["a" /* default */].GAME_FINISHED, this.end.bind(this));
 		this.mediator.subscribe(__WEBPACK_IMPORTED_MODULE_2__events_js__["a" /* default */].QUIT_CONFIRMED, this.end.bind(this));
+		this.mediator.subscribe(__WEBPACK_IMPORTED_MODULE_2__events_js__["a" /* default */].PAUSE, this.pause.bind(this));
+		this.mediator.subscribe(__WEBPACK_IMPORTED_MODULE_2__events_js__["a" /* default */].PLAY, this.play.bind(this));
 
 		GameManager.__instance = this;
 	}
@@ -20427,6 +20432,15 @@ class GameManager {
 		this.play = false;
 		const userService = new __WEBPACK_IMPORTED_MODULE_3__services_userservice_js__["a" /* default */];
 		userService.setUserScore(args.score, () => {});
+	}
+
+	pause() {
+		this.play = false;
+	}
+
+	play() {
+		this.play = true;
+		this.requestID = requestAnimationFrame(this.gameLoop.bind(this));
 	}
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = GameManager;
@@ -21247,16 +21261,19 @@ class MultiPlayer extends __WEBPACK_IMPORTED_MODULE_0__baseview_js__["a" /* defa
 
 	loginSwitch(user) {
 		this.gameSubView.loginSwitch(user);
+		this.startSubView.loginSwitch(user);
+		this.mediator.emit(__WEBPACK_IMPORTED_MODULE_8__game_events_js__["a" /* default */].MULTIPLAYER_SEARCH);
 	}
 
 	unloginSwitch(user) {
 		this.gameSubView.unloginSwitch(user);
+		this.startSubView.unloginSwitch(user);
 	}
 
-	show() {
-		super.show();
-		this.mediator.emit(__WEBPACK_IMPORTED_MODULE_8__game_events_js__["a" /* default */].MULTIPLAYER_SEARCH);
-	}
+	// show() {
+	// 	super.show();
+	// 	this.mediator.emit(Events.MULTIPLAYER_SEARCH);
+	// }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = MultiPlayer;
 
@@ -21312,7 +21329,7 @@ class Register extends __WEBPACK_IMPORTED_MODULE_0__baseview_js__["a" /* default
 						this.form.get().reset();
 						this.form.message.clean();
 					} else {
-						this.form.message.showMessage('Что-то пошло не так');
+						this.form.message.showMessage('Такой логин или E-Mail уже заняты');
 					}
 				});
 			}
@@ -21504,7 +21521,7 @@ exports = module.exports = __webpack_require__(11)();
 
 
 // module
-exports.push([module.i, "body {\n  font-family: 'Comic Sans MS', 'Arial';\n  background-size: 100% auto;\n  background-attachment: fixed; }\n\n.list {\n  position: relative;\n  background-color: #DBFCA9;\n  margin-left: 20%;\n  margin-right: 20%;\n  margin-top: 3%;\n  margin-bottom: 3%;\n  padding: 3%;\n  font-size: 18pt;\n  border-radius: 20px;\n  border: 1px solid #64734D; }\n  .list__header {\n    font-size: 30pt;\n    margin-bottom: 3%;\n    margin-top: -2%; }\n    .list__header hr {\n      color: #64734D;\n      background-color: #64734D;\n      opacity: 1;\n      height: 1px;\n      border: 0; }\n  .list__sub-header {\n    font-size: 22pt;\n    margin-bottom: 2%; }\n\n.game-field, .hints-field {\n  height: 100vh;\n  padding: 0px; }\n\n.line {\n  padding-bottom: 1%; }\n\n.padd {\n  max-height: 60vh;\n  width: 99%;\n  position: absolute;\n  -webkit-transform: translateY(-50%);\n          transform: translateY(-50%);\n  top: 50%; }\n\n.kirka {\n  background-position: left bottom;\n  position: fixed;\n  bottom: 0%;\n  left: -7%; }\n\n.left-bar {\n  height: 100vh;\n  padding: 0px;\n  background-color: rgba(58, 183, 51, 0.82);\n  border: 1px solid black;\n  border-bottom-right-radius: 20px;\n  border-top-right-radius: 20px;\n  font-size: 25px; }\n  .left-bar__quit {\n    height: 20%;\n    padding: 5%; }\n  .left-bar__user, .left-bar__score, .left-bar__wave, .left-bar__HP {\n    height: 20%; }\n\n.game-window {\n  position: fixed;\n  margin-top: 35vh;\n  margin-bottom: 35vh;\n  margin-left: 35vw;\n  margin-right: 35vw;\n  border: 2px solid black;\n  border-radius: 20px;\n  background-color: blue;\n  height: 30vh;\n  width: 30vw;\n  font-size: 20px; }\n  .game-window__text {\n    height: 50%;\n    padding: 3%; }\n  .game-window__buttons {\n    height: 50%;\n    padding: 3%; }\n    .game-window__buttons button {\n      margin: 3%; }\n", ""]);
+exports.push([module.i, "body {\n  font-family: 'Comic Sans MS', 'Arial';\n  background-size: 100% auto;\n  background-attachment: fixed; }\n\n.list {\n  position: relative;\n  background-color: #DBFCA9;\n  margin-left: 20%;\n  margin-right: 20%;\n  margin-top: 3%;\n  margin-bottom: 3%;\n  padding: 3%;\n  font-size: 18pt;\n  border-radius: 20px;\n  border: 1px solid #64734D; }\n  .list__header {\n    font-size: 30pt;\n    margin-bottom: 3%;\n    margin-top: -2%; }\n    .list__header hr {\n      color: #64734D;\n      background-color: #64734D;\n      opacity: 1;\n      height: 1px;\n      border: 0; }\n  .list__sub-header {\n    font-size: 22pt;\n    margin-bottom: 2%; }\n\n.game-field, .hints-field {\n  height: 100vh;\n  padding: 0px; }\n\n.line {\n  padding-bottom: 1%; }\n\n.padd {\n  max-height: 60vh;\n  width: 99%;\n  position: absolute;\n  -webkit-transform: translateY(-50%);\n          transform: translateY(-50%);\n  top: 50%; }\n\n.kirka {\n  background-position: left bottom;\n  position: fixed;\n  bottom: 0%;\n  left: -7%; }\n\n.left-bar {\n  height: 100vh;\n  padding: 0px;\n  background-color: rgba(58, 183, 51, 0.82);\n  border: 1px solid black;\n  border-bottom-right-radius: 20px;\n  border-top-right-radius: 20px;\n  font-size: 25px; }\n  .left-bar__quit {\n    height: 20%;\n    padding: 5%; }\n  .left-bar__user, .left-bar__score, .left-bar__wave, .left-bar__HP {\n    height: 20%; }\n\n.game-window {\n  position: fixed;\n  margin-top: 35vh;\n  margin-bottom: 35vh;\n  margin-left: 35vw;\n  margin-right: 35vw;\n  border: 2px solid black;\n  border-radius: 20px;\n  background-color: rgba(0, 147, 255, 0.92);\n  height: 30vh;\n  width: 30vw;\n  font-size: 20px; }\n  .game-window__text {\n    height: 50%;\n    padding: 3%;\n    color: black; }\n  .game-window__buttons {\n    height: 50%;\n    padding: 3%;\n    color: black; }\n    .game-window__buttons button {\n      margin: 3%; }\n", ""]);
 
 // exports
 
@@ -24115,6 +24132,8 @@ class MultiplayerStrategy {
 
 		this.state = {};
 
+		this.message.text('stayTowers');
+
 		this.mediator.subscribe(__WEBPACK_IMPORTED_MODULE_10__events_js__["a" /* default */].MULTIPLAYER_NEW_MAP_SNAPSHOT, this.generateTower.bind(this));
 		this.mediator.subscribe(__WEBPACK_IMPORTED_MODULE_10__events_js__["a" /* default */].MULTIPLAYER_NEW_WAVE_STARTED, this.gameWave.bind(this));
 	}
@@ -24123,7 +24142,7 @@ class MultiplayerStrategy {
 		if (this.status === 'playerStep') {
 			this.playerStep();
 		} else {
-			
+			this.message.text('wave');
 			this.gameWave();
 		}
 
@@ -24910,8 +24929,7 @@ class SingleStrategy {
 			this.variantsShow = [];
 			this.variantRects.length = 4;
 		} else if (this.variantRects.length < 5) {
-			// let waveButton = new VariantBlock(-1, "You cant stop monsters");
-			// this.variantRects.push(waveButton);
+			this.message.error();
 		}		
 	}
 
@@ -25627,11 +25645,11 @@ class MultiPlayerGame extends __WEBPACK_IMPORTED_MODULE_0__baseview_js__["a" /* 
 		this.quitButtons = new __WEBPACK_IMPORTED_MODULE_1__components_BaseBlock_baseblock_js__["a" /* default */]('div', {
 			class: 'game-window__buttons'
 		})
-		this.quitText.get().innerHTML = 'Точно выйти?';
+		this.quitText.get().innerHTML = 'Вы уверены, что хотите выйти?';
 		this.quitConfirmButton = new __WEBPACK_IMPORTED_MODULE_1__components_BaseBlock_baseblock_js__["a" /* default */]('button');
-		this.quitConfirmButton.get().innerHTML = 'Точно выйти';
+		this.quitConfirmButton.get().innerHTML = 'Выйти';
 		this.quitCancelButton = new __WEBPACK_IMPORTED_MODULE_1__components_BaseBlock_baseblock_js__["a" /* default */]('button');
-		this.quitCancelButton.get().innerHTML = 'Нет, не точно';
+		this.quitCancelButton.get().innerHTML = 'Остаться';
 	}
 
 	createFinishWindow() {
@@ -25645,7 +25663,7 @@ class MultiPlayerGame extends __WEBPACK_IMPORTED_MODULE_0__baseview_js__["a" /* 
 		this.finishButtons = new __WEBPACK_IMPORTED_MODULE_1__components_BaseBlock_baseblock_js__["a" /* default */]('div', {
 			class: 'game-window__buttons'
 		})
-		this.exitButton = new __WEBPACK_IMPORTED_MODULE_1__components_BaseBlock_baseblock_js__["a" /* default */]('button');
+		this.exitButton = new __WEBPACK_IMPORTED_MODULE_1__components_BaseBlock_baseblock_js__["a" /* default */]('a');
 		this.exitButton.get().innerHTML = 'Выйти в меню';
 		this.againButton = new __WEBPACK_IMPORTED_MODULE_1__components_BaseBlock_baseblock_js__["a" /* default */]('button');
 		this.againButton.get().innerHTML = 'Начать сначала';
@@ -25662,7 +25680,7 @@ class MultiPlayerGame extends __WEBPACK_IMPORTED_MODULE_0__baseview_js__["a" /* 
 		this.CRButtons = new __WEBPACK_IMPORTED_MODULE_1__components_BaseBlock_baseblock_js__["a" /* default */]('div', {
 			class: 'game-window__buttons'
 		})
-		this.CRexitButton = new __WEBPACK_IMPORTED_MODULE_1__components_BaseBlock_baseblock_js__["a" /* default */]('button');
+		this.CRexitButton = new __WEBPACK_IMPORTED_MODULE_1__components_BaseBlock_baseblock_js__["a" /* default */]('a');
 		this.CRexitButton.get().innerHTML = 'Выйти в меню';
 		this.CRagainButton = new __WEBPACK_IMPORTED_MODULE_1__components_BaseBlock_baseblock_js__["a" /* default */]('button');
 		this.CRagainButton.get().innerHTML = 'Начать сначала';
@@ -25854,6 +25872,14 @@ class MultiPlayerStart extends __WEBPACK_IMPORTED_MODULE_0__baseview_js__["a" /*
 		this.list.get().appendChild(this.message.get());
 		// this.list.get().appendChild(this.newGame.get());
 	}
+
+	loginSwitch(user) {
+		this.message.get().innerHTML = 'Поиск союзника...';
+	}
+
+	unloginSwitch(user) {
+		this.message.get().innerHTML = 'К сожалению, вы не можете играть в мультиплеер. Пожалуйста, войдите или зарегистрируйтесь!';
+	}
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = MultiPlayerStart;
 
@@ -25960,11 +25986,11 @@ class SinglePlayerGame extends __WEBPACK_IMPORTED_MODULE_0__baseview_js__["a" /*
 		this.quitButtons = new __WEBPACK_IMPORTED_MODULE_1__components_BaseBlock_baseblock_js__["a" /* default */]('div', {
 			class: 'game-window__buttons'
 		})
-		this.quitText.get().innerHTML = 'Точно выйти?';
-		this.quitConfirmButton = new __WEBPACK_IMPORTED_MODULE_1__components_BaseBlock_baseblock_js__["a" /* default */]('button');
-		this.quitConfirmButton.get().innerHTML = 'Точно выйти';
+		this.quitText.get().innerHTML = 'Вы уверены, что хотите выйти?';
+		this.quitConfirmButton = new __WEBPACK_IMPORTED_MODULE_1__components_BaseBlock_baseblock_js__["a" /* default */]('a');
+		this.quitConfirmButton.get().innerHTML = 'Выйти';
 		this.quitCancelButton = new __WEBPACK_IMPORTED_MODULE_1__components_BaseBlock_baseblock_js__["a" /* default */]('button');
-		this.quitCancelButton.get().innerHTML = 'Нет, не точно';
+		this.quitCancelButton.get().innerHTML = 'Остаться';
 	}
 
 	createFinishWindow() {
@@ -25978,7 +26004,7 @@ class SinglePlayerGame extends __WEBPACK_IMPORTED_MODULE_0__baseview_js__["a" /*
 		this.finishButtons = new __WEBPACK_IMPORTED_MODULE_1__components_BaseBlock_baseblock_js__["a" /* default */]('div', {
 			class: 'game-window__buttons'
 		})
-		this.exitButton = new __WEBPACK_IMPORTED_MODULE_1__components_BaseBlock_baseblock_js__["a" /* default */]('button');
+		this.exitButton = new __WEBPACK_IMPORTED_MODULE_1__components_BaseBlock_baseblock_js__["a" /* default */]('a');
 		this.exitButton.get().innerHTML = 'Выйти в меню';
 		this.againButton = new __WEBPACK_IMPORTED_MODULE_1__components_BaseBlock_baseblock_js__["a" /* default */]('button');
 		this.againButton.get().innerHTML = 'Начать сначала';
@@ -26003,8 +26029,14 @@ class SinglePlayerGame extends __WEBPACK_IMPORTED_MODULE_0__baseview_js__["a" /*
 			this.reset();
 		})
 
+		this.quitButton.on('click', () => {
+			this.get().appendChild(this.quitConfirm.get());
+			this.mediator.emit(__WEBPACK_IMPORTED_MODULE_3__game_events_js__["a" /* default */].PAUSE);
+		})
+
 		this.quitCancelButton.on('click', () => {
 			this.get().removeChild(this.quitConfirm.get());
+			this.mediator.emit(__WEBPACK_IMPORTED_MODULE_3__game_events_js__["a" /* default */].PLAY);
 		})
 
 		this.quitConfirmButton.on('click', () => {
@@ -26240,6 +26272,17 @@ class MessageBlock {
 				this.textBlock.text('Монстры идут! \n\nВремя наблюдать, как ваши башни уничтожат их!');
 				break;
 		}
+	}
+
+	error() {
+		const savedText = this.textBlock.text();
+		this.textBlock.text('Вы не можете поставить башню здесь: она закроет единственный путь!');
+		this.textBlock.fill('red');
+
+		setTimeout(() => {
+			this.textBlock.text(savedText);
+			this.textBlock.fill('black');
+		}, 3000)
 	}
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = MessageBlock;

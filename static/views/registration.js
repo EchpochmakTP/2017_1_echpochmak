@@ -38,7 +38,7 @@ class Register extends BaseView {
 						this.form.get().reset();
 						this.form.message.clean();
 					} else {
-						this.form.message.showMessage('Что-то пошло не так');
+						this.form.message.showMessage('Такой логин или E-Mail уже заняты');
 					}
 				});
 			}

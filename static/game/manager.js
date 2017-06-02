@@ -17,6 +17,8 @@ class GameManager {
 		this.mediator.subscribe(Events.PLAY_AGAIN, this.start.bind(this));
 		this.mediator.subscribe(Events.GAME_FINISHED, this.end.bind(this));
 		this.mediator.subscribe(Events.QUIT_CONFIRMED, this.end.bind(this));
+		this.mediator.subscribe(Events.PAUSE, this.pause.bind(this));
+		this.mediator.subscribe(Events.PLAY, this.play.bind(this));
 
 		GameManager.__instance = this;
 	}
@@ -44,5 +46,14 @@ class GameManager {
 		this.play = false;
 		const userService = new UserService;
 		userService.setUserScore(args.score, () => {});
+	}
+
+	pause() {
+		this.play = false;
+	}
+
+	play() {
+		this.play = true;
+		this.requestID = requestAnimationFrame(this.gameLoop.bind(this));
 	}
 }

@@ -59,4 +59,15 @@ class MessageBlock {
 				break;
 		}
 	}
+
+	error() {
+		const savedText = this.textBlock.text();
+		this.textBlock.text('Вы не можете поставить башню здесь: она закроет единственный путь!');
+		this.textBlock.fill('red');
+
+		setTimeout(() => {
+			this.textBlock.text(savedText);
+			this.textBlock.fill('black');
+		}, 3000)
+	}
 }

@@ -49,4 +49,12 @@ class MultiPlayerStart extends BaseView {
 		this.list.get().appendChild(this.message.get());
 		// this.list.get().appendChild(this.newGame.get());
 	}
+
+	loginSwitch(user) {
+		this.message.get().innerHTML = 'Поиск союзника...';
+	}
+
+	unloginSwitch(user) {
+		this.message.get().innerHTML = 'К сожалению, вы не можете играть в мультиплеер. Пожалуйста, войдите или зарегистрируйтесь!';
+	}
 }

@@ -227,8 +227,7 @@ class SingleStrategy {
 			this.variantsShow = [];
 			this.variantRects.length = 4;
 		} else if (this.variantRects.length < 5) {
-			// let waveButton = new VariantBlock(-1, "You cant stop monsters");
-			// this.variantRects.push(waveButton);
+			this.message.error();
 		}		
 	}
 

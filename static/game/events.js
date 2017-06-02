@@ -25,6 +25,9 @@ const Events = {
 	MULTIPLAYER_GET_SCORE: 			23,
 	MULTIPLAYER_THRONE_DAMAGE: 		24,
 
+	PAUSE: 		25,
+	PLAY: 		26,
+
 }
 
 export default Events;

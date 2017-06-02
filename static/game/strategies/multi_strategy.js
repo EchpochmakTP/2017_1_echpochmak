@@ -150,6 +150,8 @@ class MultiplayerStrategy {
 
 		this.state = {};
 
+		this.message.text('stayTowers');
+
 		this.mediator.subscribe(Events.MULTIPLAYER_NEW_MAP_SNAPSHOT, this.generateTower.bind(this));
 		this.mediator.subscribe(Events.MULTIPLAYER_NEW_WAVE_STARTED, this.gameWave.bind(this));
 	}
@@ -158,7 +160,7 @@ class MultiplayerStrategy {
 		if (this.status === 'playerStep') {
 			this.playerStep();
 		} else {
-			
+			this.message.text('wave');
 			this.gameWave();
 		}
 

@@ -94,11 +94,11 @@ class MultiPlayerGame extends BaseView {
 		this.quitButtons = new BaseBlock('div', {
 			class: 'game-window__buttons'
 		})
-		this.quitText.get().innerHTML = 'Точно выйти?';
+		this.quitText.get().innerHTML = 'Вы уверены, что хотите выйти?';
 		this.quitConfirmButton = new BaseBlock('button');
-		this.quitConfirmButton.get().innerHTML = 'Точно выйти';
+		this.quitConfirmButton.get().innerHTML = 'Выйти';
 		this.quitCancelButton = new BaseBlock('button');
-		this.quitCancelButton.get().innerHTML = 'Нет, не точно';
+		this.quitCancelButton.get().innerHTML = 'Остаться';
 	}
 
 	createFinishWindow() {
@@ -112,7 +112,7 @@ class MultiPlayerGame extends BaseView {
 		this.finishButtons = new BaseBlock('div', {
 			class: 'game-window__buttons'
 		})
-		this.exitButton = new BaseBlock('button');
+		this.exitButton = new BaseBlock('a');
 		this.exitButton.get().innerHTML = 'Выйти в меню';
 		this.againButton = new BaseBlock('button');
 		this.againButton.get().innerHTML = 'Начать сначала';
@@ -129,7 +129,7 @@ class MultiPlayerGame extends BaseView {
 		this.CRButtons = new BaseBlock('div', {
 			class: 'game-window__buttons'
 		})
-		this.CRexitButton = new BaseBlock('button');
+		this.CRexitButton = new BaseBlock('a');
 		this.CRexitButton.get().innerHTML = 'Выйти в меню';
 		this.CRagainButton = new BaseBlock('button');
 		this.CRagainButton.get().innerHTML = 'Начать сначала';

@@ -79,14 +79,17 @@ class MultiPlayer extends BaseView {
 
 	loginSwitch(user) {
 		this.gameSubView.loginSwitch(user);
+		this.startSubView.loginSwitch(user);
+		this.mediator.emit(Events.MULTIPLAYER_SEARCH);
 	}
 
 	unloginSwitch(user) {
 		this.gameSubView.unloginSwitch(user);
+		this.startSubView.unloginSwitch(user);
 	}
 
-	show() {
-		super.show();
-		this.mediator.emit(Events.MULTIPLAYER_SEARCH);
-	}
+	// show() {
+	// 	super.show();
+	// 	this.mediator.emit(Events.MULTIPLAYER_SEARCH);
+	// }
 }

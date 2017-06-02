@@ -90,11 +90,11 @@ class SinglePlayerGame extends BaseView {
 		this.quitButtons = new BaseBlock('div', {
 			class: 'game-window__buttons'
 		})
-		this.quitText.get().innerHTML = 'Точно выйти?';
-		this.quitConfirmButton = new BaseBlock('button');
-		this.quitConfirmButton.get().innerHTML = 'Точно выйти';
+		this.quitText.get().innerHTML = 'Вы уверены, что хотите выйти?';
+		this.quitConfirmButton = new BaseBlock('a');
+		this.quitConfirmButton.get().innerHTML = 'Выйти';
 		this.quitCancelButton = new BaseBlock('button');
-		this.quitCancelButton.get().innerHTML = 'Нет, не точно';
+		this.quitCancelButton.get().innerHTML = 'Остаться';
 	}
 
 	createFinishWindow() {
@@ -108,7 +108,7 @@ class SinglePlayerGame extends BaseView {
 		this.finishButtons = new BaseBlock('div', {
 			class: 'game-window__buttons'
 		})
-		this.exitButton = new BaseBlock('button');
+		this.exitButton = new BaseBlock('a');
 		this.exitButton.get().innerHTML = 'Выйти в меню';
 		this.againButton = new BaseBlock('button');
 		this.againButton.get().innerHTML = 'Начать сначала';
@@ -133,8 +133,14 @@ class SinglePlayerGame extends BaseView {
 			this.reset();
 		})
 
+		this.quitButton.on('click', () => {
+			this.get().appendChild(this.quitConfirm.get());
+			this.mediator.emit(Events.PAUSE);
+		})
+
 		this.quitCancelButton.on('click', () => {
 			this.get().removeChild(this.quitConfirm.get());
+			this.mediator.emit(Events.PLAY);
 		})
 
 		this.quitConfirmButton.on('click', () => {
