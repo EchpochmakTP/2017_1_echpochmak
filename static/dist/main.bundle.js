@@ -18627,7 +18627,7 @@ class Settings {
 			this.pentagonGYR
 		];
 
-		this.variantsX = this.hintsFieldElement.offsetWidth * 0.05;
+		this.variantsX = this.hintsFieldElement.offsetWidth * 0.0;
 		this.variantsXSize = this.hintsFieldElement.offsetWidth * 0.9;
 		this.variantsYSize = this.fullMapSize * 0.1;
 		this.betweenVariants = this.fullMapSize * 0.125;
@@ -18638,6 +18638,11 @@ class Settings {
 			[this.circleSad, this.circleBlue, this.circleGreen],
 			[this.circleGreen, this.circleYellow, this.circleRed]
 		];
+
+		this.messageX = this.hintsFieldElement.offsetWidth * 0.0;
+		this.messageY = this.mapY;
+		this.messageXSize = this.hintsFieldElement.offsetWidth * 0.9;
+		this.messageYSize = this.fullMapSize / 2;
 
 		this.type = {
 			'o': 0,
@@ -20534,10 +20539,13 @@ class Scene {
 			}
 		}
 
-
 		for (let i = 0; i < this.state.checkpoints.length ; i++) {
 			this.gameLayer.add(this.state.checkpoints[i].draw);
 		}
+
+		this.hintsLayer.add(this.state.message.draw);
+		this.hintsLayer.add(this.state.message.baseTextBlock);
+		this.hintsLayer.add(this.state.message.textBlock);
 
 		this.gameStage.add(this.gameLayer);
 		this.hintsStage.add(this.hintsLayer);
@@ -20732,7 +20740,8 @@ class VariantBlock {
 			height: (text ? this.text.getHeight() : this.settings.variantsYSize),
 			fill: 'grey',
 			stroke: 'black',
-			strokeWidth: 5
+			strokeWidth: 2,
+			cornerRadius: 10
 		});
 
 		// let width = this.settings.hintsFieldElement.offsetWidth;
@@ -23950,10 +23959,12 @@ class RegisterForm extends __WEBPACK_IMPORTED_MODULE_0__Form_form_js__["a" /* de
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__mediator_js__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__events_js__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__transport_js__ = __webpack_require__(33);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12_konva__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12_konva___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_12_konva__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13_pathfinding__ = __webpack_require__(21);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13_pathfinding___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_13_pathfinding__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__messageBlock_js__ = __webpack_require__(94);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13_konva__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13_konva___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_13_konva__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14_pathfinding__ = __webpack_require__(21);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14_pathfinding___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_14_pathfinding__);
+
 
 
 
@@ -24006,6 +24017,8 @@ class MultiplayerStrategy {
 		this.path = [];
 		this.fieldsNewTower = [];
 		this.checkpoints = [];
+		this.message = new __WEBPACK_IMPORTED_MODULE_12__messageBlock_js__["a" /* default */]();
+
 		this.lastMap = Array(this.settings.mapSize);
 		for (let i = 0; i < this.lastMap.length; i++) {
 			this.lastMap[i] = "o" * 10
@@ -24063,7 +24076,7 @@ class MultiplayerStrategy {
 			for (let j = 0; j < this.settings.mapSize; j++){
 				this.fields[j][i] = {
 					tower: 0,
-					field: new __WEBPACK_IMPORTED_MODULE_12_konva___default.a.Rect({
+					field: new __WEBPACK_IMPORTED_MODULE_13_konva___default.a.Rect({
 						x: this.settings.mapX + j * this.settings.fieldSize + j * 2,
 						y: this.settings.mapY + i * this.settings.fieldSize + i * 2,
 						width: this.settings.fieldSize,
@@ -24133,6 +24146,7 @@ class MultiplayerStrategy {
 			fieldsWithStars: this.fieldsWithStars,
 			fieldsWith: this.fieldsWith,
 			checkpoints: this.checkpoints,
+			message: this.message
 		}
 	}
 
@@ -24663,10 +24677,12 @@ class MultiplayerStrategy {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__gameObjects_arrow_js__ = __webpack_require__(26);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__mediator_js__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__events_js__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_konva__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_konva___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_10_konva__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_pathfinding__ = __webpack_require__(21);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_pathfinding___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_11_pathfinding__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__messageBlock_js__ = __webpack_require__(94);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_konva__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_konva___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_11_konva__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12_pathfinding__ = __webpack_require__(21);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12_pathfinding___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_12_pathfinding__);
+
 
 
 
@@ -24715,6 +24731,7 @@ class SingleStrategy {
 		this.path = [];
 		this.fieldsNewTower = [];
 		this.checkpoints = [];
+		this.message = new __WEBPACK_IMPORTED_MODULE_10__messageBlock_js__["a" /* default */]();
 
 		for (let i = 0; i < 4; i++) {
 			this.variantRects[i] = new __WEBPACK_IMPORTED_MODULE_6__variantBlock_js__["a" /* default */](i);
@@ -24767,7 +24784,7 @@ class SingleStrategy {
 			for (let j = 0; j < this.settings.mapSize; j++){
 				this.fields[j][i] = {
 					tower: 0,
-					field: new __WEBPACK_IMPORTED_MODULE_10_konva___default.a.Rect({
+					field: new __WEBPACK_IMPORTED_MODULE_11_konva___default.a.Rect({
 						x: this.settings.mapX + j * this.settings.fieldSize + j * 2,
 						y: this.settings.mapY + i * this.settings.fieldSize + i * 2,
 						width: this.settings.fieldSize,
@@ -24844,6 +24861,7 @@ class SingleStrategy {
 			fieldsWithStars: this.fieldsWithStars,
 			fieldsWith: this.fieldsWith,
 			checkpoints: this.checkpoints,
+			message: this.message
 		}
 	}
 
@@ -24888,7 +24906,7 @@ class SingleStrategy {
 			this.variantsShow = [];
 			this.variantRects.length = 4;
 		} else if (this.variantRects.length < 5) {
-			let waveButton = new __WEBPACK_IMPORTED_MODULE_6__variantBlock_js__["a" /* default */](4, "You cant stop monsters");
+			let waveButton = new __WEBPACK_IMPORTED_MODULE_6__variantBlock_js__["a" /* default */](-1, "You cant stop monsters");
 			this.variantRects.push(waveButton);
 		}		
 	}
@@ -25412,9 +25430,9 @@ class SingleStrategy {
 			}
 		}
 
-		const finder = new __WEBPACK_IMPORTED_MODULE_11_pathfinding___default.a.BiAStarFinder({
+		const finder = new __WEBPACK_IMPORTED_MODULE_12_pathfinding___default.a.BiAStarFinder({
 			allowDiagonal: true,
-			heuristic: __WEBPACK_IMPORTED_MODULE_11_pathfinding___default.a.Heuristic.euclidean
+			heuristic: __WEBPACK_IMPORTED_MODULE_12_pathfinding___default.a.Heuristic.euclidean
 		});
 
 		let path = [];
@@ -25422,7 +25440,7 @@ class SingleStrategy {
 			let subStart = checkpoints[i - 1];
 			let subFinish = checkpoints[i];
 
-			const grid = new __WEBPACK_IMPORTED_MODULE_11_pathfinding___default.a.Grid(matrix);
+			const grid = new __WEBPACK_IMPORTED_MODULE_12_pathfinding___default.a.Grid(matrix);
 			let subPath = finder.findPath(subStart[0], subStart[1], subFinish[0], subFinish[1], grid);
 
 			path = path.concat(subPath);
@@ -26141,6 +26159,81 @@ class TowerWave {
 	}
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = TowerWave;
+
+
+/***/ }),
+/* 94 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__settings_js__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_konva__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_konva___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_konva__);
+
+
+
+class MessageBlock {
+	constructor() {
+
+		this.settings = new __WEBPACK_IMPORTED_MODULE_0__settings_js__["a" /* default */];
+
+		this.baseTextBlock = new __WEBPACK_IMPORTED_MODULE_1_konva___default.a.Text({
+			x: this.settings.messageX,
+			y: this.settings.messageY,
+			width: this.settings.messageXSize,
+			text: 'Что делать?',
+			fontFamily: 'Comic Sans MS',
+			fontSize: 25,
+			fill: 'black',
+			padding: 15,
+			align: 'center',
+		});
+
+		this.textBlock = new __WEBPACK_IMPORTED_MODULE_1_konva___default.a.Text({
+			x: this.settings.messageX,
+			y: this.settings.messageY + this.baseTextBlock.getHeight(),
+			width: this.settings.messageXSize,
+			text: 'Время ставить башни',
+			fontFamily: 'Comic Sans MS',
+			fontSize: 20,
+			fill: 'black',
+			padding: 10,
+			align: 'center',
+		});
+
+		this.draw = new __WEBPACK_IMPORTED_MODULE_1_konva___default.a.Rect({
+			x: this.settings.messageX,
+			y: this.settings.messageY,
+			width: this.settings.messageXSize,
+			height: this.settings.messageYSize,
+			fill: 'rgba(58, 183, 51, 0.82)',
+			stroke: 'black',
+			strokeWidth: 1,
+			cornerRadius: 15
+		});
+	}
+
+// status: 
+// 'stayTowers';
+// 'selectTower';
+// 'selectVariant';
+// 'wave'
+
+	text(status) {
+		switch (status) {
+			case ('stayTowers'):
+				this.text.getText('Время ставить башни на поле. Нажимайте на клетки, в которых хотите их поставить!');
+				break;
+			case ('selectTower'):
+				this.text.getText('Время выбрать, какую из башен оставить на поле. Нажмите на башню, которую хотите оставить!');
+				break;
+			case ('selectVariant'):
+				break;
+		}
+	}
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = MessageBlock;
+
 
 
 /***/ })

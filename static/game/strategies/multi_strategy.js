@@ -10,6 +10,7 @@ import TowerWave from '../gameObjects/towerwave.js'
 import Mediator from '../mediator.js'
 import Events from '../events.js'
 import WebSocketService from '../transport.js'
+import MessageBlock from '../messageBlock.js'
 
 import Konva from 'konva'
 import PF from 'pathfinding'
@@ -51,6 +52,8 @@ class MultiplayerStrategy {
 		this.path = [];
 		this.fieldsNewTower = [];
 		this.checkpoints = [];
+		this.message = new MessageBlock();
+
 		this.lastMap = Array(this.settings.mapSize);
 		for (let i = 0; i < this.lastMap.length; i++) {
 			this.lastMap[i] = "o" * 10
@@ -178,6 +181,7 @@ class MultiplayerStrategy {
 			fieldsWithStars: this.fieldsWithStars,
 			fieldsWith: this.fieldsWith,
 			checkpoints: this.checkpoints,
+			message: this.message
 		}
 	}
 

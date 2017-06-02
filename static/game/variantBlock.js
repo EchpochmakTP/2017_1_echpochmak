@@ -43,7 +43,8 @@ class VariantBlock {
 			height: (text ? this.text.getHeight() : this.settings.variantsYSize),
 			fill: 'grey',
 			stroke: 'black',
-			strokeWidth: 5
+			strokeWidth: 2,
+			cornerRadius: 10
 		});
 
 		// let width = this.settings.hintsFieldElement.offsetWidth;

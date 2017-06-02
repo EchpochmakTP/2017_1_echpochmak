@@ -8,6 +8,7 @@ import VariantBlock from '../variantBlock.js'
 import Arrow from '../gameObjects/arrow.js'
 import Mediator from '../mediator.js'
 import Events from '../events.js'
+import MessageBlock from '../messageBlock.js'
 
 import Konva from 'konva'
 import PF from 'pathfinding'
@@ -47,6 +48,7 @@ class SingleStrategy {
 		this.path = [];
 		this.fieldsNewTower = [];
 		this.checkpoints = [];
+		this.message = new MessageBlock();
 
 		for (let i = 0; i < 4; i++) {
 			this.variantRects[i] = new VariantBlock(i);
@@ -176,6 +178,7 @@ class SingleStrategy {
 			fieldsWithStars: this.fieldsWithStars,
 			fieldsWith: this.fieldsWith,
 			checkpoints: this.checkpoints,
+			message: this.message
 		}
 	}
 
@@ -220,7 +223,7 @@ class SingleStrategy {
 			this.variantsShow = [];
 			this.variantRects.length = 4;
 		} else if (this.variantRects.length < 5) {
-			let waveButton = new VariantBlock(4, "You cant stop monsters");
+			let waveButton = new VariantBlock(-1, "You cant stop monsters");
 			this.variantRects.push(waveButton);
 		}		
 	}
