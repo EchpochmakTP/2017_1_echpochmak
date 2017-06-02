@@ -24825,6 +24825,8 @@ class SingleStrategy {
 
 		this.state = {};
 
+		this.message.text('stayTowers');
+
 		//this.fields[3][4].tower = new StarTower(
 		//	this.settings.star,
 		//	3 * (this.settings.fieldSize + 2) + this.settings.fieldSize / 2 + this.settings.mapX,
@@ -24839,6 +24841,7 @@ class SingleStrategy {
 		if (this.status === 'playerStep') {
 			this.playerStep();
 		} else {
+			this.message.text('wave');
 			this.gameWave();
 		}
 
@@ -24901,13 +24904,14 @@ class SingleStrategy {
 	}
 
 	onClickField(field) {
+		this.message.text('stayTowers');
 		if (this.isAbleTower(field)){
 			this.generateTower(field);
 			this.variantsShow = [];
 			this.variantRects.length = 4;
 		} else if (this.variantRects.length < 5) {
-			let waveButton = new __WEBPACK_IMPORTED_MODULE_6__variantBlock_js__["a" /* default */](-1, "You cant stop monsters");
-			this.variantRects.push(waveButton);
+			// let waveButton = new VariantBlock(-1, "You cant stop monsters");
+			// this.variantRects.push(waveButton);
 		}		
 	}
 
@@ -25012,6 +25016,7 @@ class SingleStrategy {
 
 	onClickVariantRect(variantRect) {
 		this.createVariants.call(this, variantRect.field);
+		this.message.text('selectVariant');
 	}
 
 	onClickPentagon(field) {
@@ -25027,6 +25032,7 @@ class SingleStrategy {
 		);
 		star.draw.addEventListener('click', () => {this.onClickNewStar.call(this, field, this.settings.star)});
 		this.variantsShow.push(star);
+		this.message.text('selectVariant');
 	}
 
 	onClickNewStar(field, kind) {
@@ -25103,6 +25109,9 @@ class SingleStrategy {
 		this.newStones++;
 
 		if (this.newStones >= this.settings.numberTowersInStep) {
+			
+			this.message.text('selectTower');
+
 			for (let i = 0; i < this.settings.mapSize; i++){
 				for (let j = 0; j < this.settings.mapSize; j++){
 					this.fields[i][j]['field'].removeEventListener('click', () => {this.onClickField.call(this, this.fields[i][j])});
@@ -25206,6 +25215,8 @@ class SingleStrategy {
 			variantStay.draw.addEventListener('tap', () => {this.onClickStayVariant.call(this, field, variantStay.kind, currentNewTower)});
 			this.variantsShow.push(variantStay);
 		};
+		
+		this.message.text('selectVariant');
 	}
 
 	listVariants(field) {
@@ -25388,6 +25399,7 @@ class SingleStrategy {
 			this.mediator.emit(__WEBPACK_IMPORTED_MODULE_9__events_js__["a" /* default */].NEW_WAVE_STARTED, {
 				wave: this.wave
 			});
+			this.message.text('stayTowers');
 
 			this.enemiesNumber = 0;
 			for (let i = 0; i < this.settings.mapSize; i++){
@@ -26193,7 +26205,7 @@ class MessageBlock {
 			x: this.settings.messageX,
 			y: this.settings.messageY + this.baseTextBlock.getHeight(),
 			width: this.settings.messageXSize,
-			text: 'Время ставить башни',
+			text: '...',
 			fontFamily: 'Comic Sans MS',
 			fontSize: 20,
 			fill: 'black',
@@ -26213,21 +26225,19 @@ class MessageBlock {
 		});
 	}
 
-// status: 
-// 'stayTowers';
-// 'selectTower';
-// 'selectVariant';
-// 'wave'
-
 	text(status) {
 		switch (status) {
 			case ('stayTowers'):
-				this.text.getText('Время ставить башни на поле. Нажимайте на клетки, в которых хотите их поставить!');
+				this.textBlock.text('Время ставить башни на поле. \n\nНажимайте на клетки, в которых хотите их поставить!');
 				break;
 			case ('selectTower'):
-				this.text.getText('Время выбрать, какую из башен оставить на поле. Нажмите на башню, которую хотите оставить!');
+				this.textBlock.text('Время выбрать, какую из башен оставить на поле. \n\nНажмите на башню, которую хотите оставить!');
 				break;
 			case ('selectVariant'):
+				this.textBlock.text('Время выбрать, что сделать с этой башней: оставить на поле или скомбинировать с другими. \n\nНажмите на одну из кнопок вокруг выбранной башни!');
+				break;
+			case ('wave'):
+				this.textBlock.text('Монстры идут! \n\nВремя наблюдать, как ваши башни уничтожат их!');
 				break;
 		}
 	}

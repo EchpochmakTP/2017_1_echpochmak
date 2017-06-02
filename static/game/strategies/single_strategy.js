@@ -142,6 +142,8 @@ class SingleStrategy {
 
 		this.state = {};
 
+		this.message.text('stayTowers');
+
 		//this.fields[3][4].tower = new StarTower(
 		//	this.settings.star,
 		//	3 * (this.settings.fieldSize + 2) + this.settings.fieldSize / 2 + this.settings.mapX,
@@ -156,6 +158,7 @@ class SingleStrategy {
 		if (this.status === 'playerStep') {
 			this.playerStep();
 		} else {
+			this.message.text('wave');
 			this.gameWave();
 		}
 
@@ -218,13 +221,14 @@ class SingleStrategy {
 	}
 
 	onClickField(field) {
+		this.message.text('stayTowers');
 		if (this.isAbleTower(field)){
 			this.generateTower(field);
 			this.variantsShow = [];
 			this.variantRects.length = 4;
 		} else if (this.variantRects.length < 5) {
-			let waveButton = new VariantBlock(-1, "You cant stop monsters");
-			this.variantRects.push(waveButton);
+			// let waveButton = new VariantBlock(-1, "You cant stop monsters");
+			// this.variantRects.push(waveButton);
 		}		
 	}
 
@@ -329,6 +333,7 @@ class SingleStrategy {
 
 	onClickVariantRect(variantRect) {
 		this.createVariants.call(this, variantRect.field);
+		this.message.text('selectVariant');
 	}
 
 	onClickPentagon(field) {
@@ -344,6 +349,7 @@ class SingleStrategy {
 		);
 		star.draw.addEventListener('click', () => {this.onClickNewStar.call(this, field, this.settings.star)});
 		this.variantsShow.push(star);
+		this.message.text('selectVariant');
 	}
 
 	onClickNewStar(field, kind) {
@@ -420,6 +426,9 @@ class SingleStrategy {
 		this.newStones++;
 
 		if (this.newStones >= this.settings.numberTowersInStep) {
+			
+			this.message.text('selectTower');
+
 			for (let i = 0; i < this.settings.mapSize; i++){
 				for (let j = 0; j < this.settings.mapSize; j++){
 					this.fields[i][j]['field'].removeEventListener('click', () => {this.onClickField.call(this, this.fields[i][j])});
@@ -523,6 +532,8 @@ class SingleStrategy {
 			variantStay.draw.addEventListener('tap', () => {this.onClickStayVariant.call(this, field, variantStay.kind, currentNewTower)});
 			this.variantsShow.push(variantStay);
 		};
+		
+		this.message.text('selectVariant');
 	}
 
 	listVariants(field) {
@@ -705,6 +716,7 @@ class SingleStrategy {
 			this.mediator.emit(Events.NEW_WAVE_STARTED, {
 				wave: this.wave
 			});
+			this.message.text('stayTowers');
 
 			this.enemiesNumber = 0;
 			for (let i = 0; i < this.settings.mapSize; i++){

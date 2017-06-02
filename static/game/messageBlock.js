@@ -23,7 +23,7 @@ class MessageBlock {
 			x: this.settings.messageX,
 			y: this.settings.messageY + this.baseTextBlock.getHeight(),
 			width: this.settings.messageXSize,
-			text: 'Время ставить башни',
+			text: '...',
 			fontFamily: 'Comic Sans MS',
 			fontSize: 20,
 			fill: 'black',
@@ -43,21 +43,19 @@ class MessageBlock {
 		});
 	}
 
-// status: 
-// 'stayTowers';
-// 'selectTower';
-// 'selectVariant';
-// 'wave'
-
 	text(status) {
 		switch (status) {
 			case ('stayTowers'):
-				this.text.getText('Время ставить башни на поле. Нажимайте на клетки, в которых хотите их поставить!');
+				this.textBlock.text('Время ставить башни на поле. \n\nНажимайте на клетки, в которых хотите их поставить!');
 				break;
 			case ('selectTower'):
-				this.text.getText('Время выбрать, какую из башен оставить на поле. Нажмите на башню, которую хотите оставить!');
+				this.textBlock.text('Время выбрать, какую из башен оставить на поле. \n\nНажмите на башню, которую хотите оставить!');
 				break;
 			case ('selectVariant'):
+				this.textBlock.text('Время выбрать, что сделать с этой башней: оставить на поле или скомбинировать с другими. \n\nНажмите на одну из кнопок вокруг выбранной башни!');
+				break;
+			case ('wave'):
+				this.textBlock.text('Монстры идут! \n\nВремя наблюдать, как ваши башни уничтожат их!');
 				break;
 		}
 	}
