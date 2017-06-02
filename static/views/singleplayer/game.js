@@ -130,13 +130,7 @@ class SinglePlayerGame extends BaseView {
 			this.HPBlock_text.get().innerHTML = args.health;
 		})
 		this.mediator.subscribe(Events.PLAY_AGAIN, () => {
-			this.waveBlock_text.get().innerHTML = 1;
-			this.scoreBlock_text.get().innerHTML = 0;
-			this.HPBlock_text.get().innerHTML = 100;
-		})
-
-		this.quitButton.on('click', () => {
-			this.get().appendChild(this.quitConfirm.get());
+			this.reset();
 		})
 
 		this.quitCancelButton.on('click', () => {
@@ -148,17 +142,26 @@ class SinglePlayerGame extends BaseView {
 			this.mediator.emit(Events.QUIT_CONFIRMED, {
 				score: parseInt((this.scoreBlock_text.get().innerHTML))
 			});
+			this.reset();
 		})
 
 		this.exitButton.on('click', () => {
 			this.get().removeChild(this.finishWindow.get());
 			this.mediator.emit(Events.EXIT_TO_MENU);
+			this.reset();
 		})
 
 		this.againButton.on('click', () => {
 			this.get().removeChild(this.finishWindow.get());
 			this.mediator.emit(Events.PLAY_AGAIN);
+			this.reset();
 		})
+	}
+
+	reset() {
+		this.waveBlock_text.get().innerHTML = 1;
+		this.scoreBlock_text.get().innerHTML = 0;
+		this.HPBlock_text.get().innerHTML = 100;
 	}
 
 	render() {

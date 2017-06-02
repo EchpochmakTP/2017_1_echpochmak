@@ -29,3 +29,4 @@ router.register('/multiplayer/', new MultiPlayer());
 router.start();
 
 const auth = new Authorize();
+auth.init();

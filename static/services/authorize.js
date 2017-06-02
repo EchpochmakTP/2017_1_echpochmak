@@ -19,7 +19,11 @@ class Authorize {
 			score: 0
 		}
 		Object.assign(this.user, this.anonymUser);
-		
+
+		Authorize.__instance = this;
+	}
+
+	init() {
 		this.showForGuest();
 
 		this.service.getUsername(xhr => {
@@ -31,8 +35,6 @@ class Authorize {
 				this.showForGuest();
 			}
 		});
-
-		Authorize.__instance = this;
 	}
 
 	loadUserScore() {

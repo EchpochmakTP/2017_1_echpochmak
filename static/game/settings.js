@@ -149,10 +149,10 @@ class Settings {
 		];
 
 		this.variantsX = this.hintsFieldElement.offsetWidth * 0.05;
-		this.variantsY = this.mapY;
 		this.variantsXSize = this.hintsFieldElement.offsetWidth * 0.9;
 		this.variantsYSize = this.fullMapSize * 0.1;
-		this.betweenVariants = this.fullMapSize * 0.15;
+		this.betweenVariants = this.fullMapSize * 0.125;
+		this.variantsY = this.mapY + this.fullMapSize / 2 + this.betweenVariants - this.variantsYSize;
 
 		this.variantCircls = [
 			[this.circleRed, this.circlePink, this.circleSad],

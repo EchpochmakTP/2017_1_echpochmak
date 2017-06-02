@@ -135,6 +135,12 @@ class MultiPlayerGame extends BaseView {
 		this.CRagainButton.get().innerHTML = 'Начать сначала';
 	}
 
+	reset() {
+		this.waveBlock_text.get().innerHTML = 1;
+		this.scoreBlock_text.get().innerHTML = 0;
+		this.HPBlock_text.get().innerHTML = 100;
+	}
+
 	makeListeners() {
 
 		this.mediator.subscribe(Events.MULTIPLAYER_GAME_START, (args) => {
@@ -160,9 +166,7 @@ class MultiPlayerGame extends BaseView {
 			this.HPBlock_text.get().innerHTML = args.health;
 		})
 		this.mediator.subscribe(Events.MULTIPLAYER_PLAY_AGAIN, () => {
-			this.waveBlock_text.get().innerHTML = 1;
-			this.scoreBlock_text.get().innerHTML = 0;
-			this.HPBlock_text.get().innerHTML = 100;
+			this.reset();
 		})
 
 		this.quitButton.on('click', () => {
@@ -178,26 +182,31 @@ class MultiPlayerGame extends BaseView {
 			this.mediator.emit(Events.MULTIPLAYER_QUIT_CONFIRMED, {
 				score: parseInt((this.scoreBlock_text.get().innerHTML))
 			});
+			this.reset();
 		})
 
 		this.exitButton.on('click', () => {
 			this.get().removeChild(this.finishWindow.get());
 			this.mediator.emit(Events.MULTIPLAYER_EXIT_TO_MENU);
+			this.reset();
 		})
 
 		this.againButton.on('click', () => {
 			this.get().removeChild(this.finishWindow.get());
 			this.mediator.emit(Events.MULTIPLAYER_PLAY_AGAIN);
+			this.reset();
 		})
 
 		this.CRexitButton.on('click', () => {
 			this.get().removeChild(this.CRWindow.get());
 			this.mediator.emit(Events.MULTIPLAYER_EXIT_TO_MENU);
+			this.reset();
 		})
 
 		this.CRagainButton.on('click', () => {
 			this.get().removeChild(this.CRWindow.get());
 			this.mediator.emit(Events.MULTIPLAYER_PLAY_AGAIN);
+			this.reset();
 		})
 	}
 

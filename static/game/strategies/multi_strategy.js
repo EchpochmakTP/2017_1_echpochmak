@@ -181,8 +181,6 @@ class MultiplayerStrategy {
 		}
 	}
 
-	
-
 	isAbleTower(place) {
 		for (let i = 0; i < this.settings.checkpoints.length; i++){
 			if (place.coordinates[0] == this.settings.checkpoints[i][0] && place.coordinates[1] == this.settings.checkpoints[i][1]) {
@@ -225,7 +223,6 @@ class MultiplayerStrategy {
 			y: field.coordinates[0]
 		}, knd)
 	}
-		
 
 	onOverField(field) {
 	//	field.field.setStroke(this.isAbleTower(field) ? 'green' : 'red');
@@ -302,7 +299,7 @@ class MultiplayerStrategy {
 		}
 	}
 
-	onClickStayVariant(field, kind, currentNewTower){
+	onClickStayVariant(field, kind, currentNewTower) {
 		for (let i = 0; i < this.fieldsNewTower.length; i++){
 			let xCoord = this.fieldsNewTower[i]['coordinates'][0];
 			let yCoord = this.fieldsNewTower[i]['coordinates'][1];
@@ -560,7 +557,7 @@ class MultiplayerStrategy {
 		if (this.enemiesNumber < this.settings.numberMonstersInWave) {
 			if (this.betweenEnemies > 10) {
 				let monster = new Monster(this.settings.triangl, this.enemiesNumber);
-				monster.health += this.settings.addHPInWave * (this.wave - 1);
+				// monster.health += this.settings.addHPInWave * (this.wave - 1);
 				this.enemies.push(monster);
 				this.betweenEnemies = 0;
 				this.enemiesNumber++;
@@ -600,7 +597,7 @@ class MultiplayerStrategy {
 			if (this.enemies[i].killed) {
 				this.enemies.splice(i, 1);
 				this.score++;
-				this.mediator.emit(Events.GET_SCORE, {
+				this.mediator.emit(Events.MULTIPLAYER_GET_SCORE, {
 					score: this.score
 				})
   			}
@@ -625,6 +622,7 @@ class MultiplayerStrategy {
   				}
   			}
   		}
+
   		if (this.fl) {
   			for (let j = 0; j < this.arg.enemyDamages.length; j++) {
   				//console.log('88888888888888888888888888888888888888888888888888888')
@@ -657,7 +655,7 @@ class MultiplayerStrategy {
 				i--;
 				let damage = this.settings.damage + this.settings.addDamageInWave * (this.wave - 1);
 				this.throneHealth -= damage;
-				this.mediator.emit(Events.THRONE_DAMAGE, {
+				this.mediator.emit(Events.MULTIPLAYER_THRONE_DAMAGE, {
 					health: (this.throneHealth > 0 ? this.throneHealth : 0)
 				})
 				if (this.throneHealth <= 0) {
@@ -668,6 +666,7 @@ class MultiplayerStrategy {
 				}
 			}
 		}
+
 		if ((this.enemies.length === 0) && (this.enemiesNumber >= this.settings.numberMonstersInWave)) {
 			this.status = 'playerStep';
 			this.wave++;

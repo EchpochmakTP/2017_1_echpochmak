@@ -22,31 +22,24 @@ class MultiPlayerStart extends BaseView {
 			align: 'center'
 		});
 		this.message = new BaseBlock('div');
-		this.newGame = new BaseBlock('button', {
-			align: 'center'
-		});
-		this.newGame.get().innerHTML = 'Найти союзника';
+		this.message.get().innerHTML = 'Поиск союзника...'
 
 		this.render();
 		this.makeListeners();
 	}
 
 	makeListeners() {
-		this.newGame.on('click', (event) => {
-			event.preventDefault();
-			this.message.get().innerHTML = 'Поиск...';
-			this.newGame.get().disabled = true;
-			this.mediator.emit(Events.MULTIPLAYER_SEARCH);
-		})
 
 		this.mediator.subscribe(Events.MULTIPLAYER_GAME_START, () => {
-			this.message.get().innerHTML = '';
-			this.newGame.get().disabled = false;
+			this.message.get().innerHTML = 'Поиск союзника...';
 		})
 
 		this.mediator.subscribe(Events.MULTIPLAYER_CONNECTION_REFUSED, () => {
 			this.message.get().innerHTML = 'Не удалось установить соединение';
-			this.newGame.get().disabled = false;
+		})
+
+		this.mediator.subscribe(Events.MULTIPLAYER_PLAY_AGAIN, () => {
+			this.message.get().innerHTML = 'Поиск союзника...';
 		})
 	}
 
@@ -54,6 +47,6 @@ class MultiPlayerStart extends BaseView {
 		this.get().appendChild(this.padd.get());
 		this.padd.get().appendChild(this.list.get());
 		this.list.get().appendChild(this.message.get());
-		this.list.get().appendChild(this.newGame.get());
+		// this.list.get().appendChild(this.newGame.get());
 	}
 }

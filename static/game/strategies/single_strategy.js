@@ -136,6 +136,8 @@ class SingleStrategy {
 			star: 0,
 		};
 
+		this.fieldsWith = [];
+
 		this.state = {};
 
 		//this.fields[3][4].tower = new StarTower(
@@ -172,6 +174,7 @@ class SingleStrategy {
 			fieldsWithCircles: this.fieldsWithCircles,
 			fieldsWithPentagons: this.fieldsWithPentagons,
 			fieldsWithStars: this.fieldsWithStars,
+			fieldsWith: this.fieldsWith,
 			checkpoints: this.checkpoints,
 		}
 	}

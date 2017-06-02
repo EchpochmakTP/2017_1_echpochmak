@@ -32,12 +32,13 @@ class MultiPlayer extends BaseView {
 		this.mediator.subscribe(Events.MULTIPLAYER_GAME_START, this.onStartGame.bind(this));
 		this.mediator.subscribe(Events.MULTIPLAYER_QUIT_CONFIRMED, this.onQuitConfirm.bind(this));
 		this.mediator.subscribe(Events.MULTIPLAYER_EXIT_TO_MENU, this.onExit.bind(this));
-		this.mediator.subscribe(Events.MULTIPLAYER_PLAY_AGAIN, this.onQuitConfirm.bind(this));
+		this.mediator.subscribe(Events.MULTIPLAYER_PLAY_AGAIN, this.onPlayAgain.bind(this));
 	}
 
 	onSearch() {
 		this.ws = new WebSocketService();
 		this.ws.open();
+		console.log('la');
 	}
 
 	onStartGame(args) {
@@ -52,6 +53,13 @@ class MultiPlayer extends BaseView {
 		this.mediator.emit(Events.PLAY_NEW_GAME);
 	}
 
+	onPlayAgain() {
+		this.ws.close();
+		this.get().removeChild(this.gameSubView.get());
+		this.get().appendChild(this.startSubView.get());
+		this.mediator.emit(Events.MULTIPLAYER_SEARCH);
+	}
+
 	onQuitConfirm() {
 		this.ws.close();
 		this.get().removeChild(this.gameSubView.get());
@@ -61,7 +69,8 @@ class MultiPlayer extends BaseView {
 	onExit() {
 		this.ws.close();
 		this.get().removeChild(this.gameSubView.get());
-		this.get().appendChild(this.startSubView.get());	this.router.go('/');
+		this.get().appendChild(this.startSubView.get());	
+		this.router.go('/');
 	}
 
 	render() {
@@ -74,5 +83,10 @@ class MultiPlayer extends BaseView {
 
 	unloginSwitch(user) {
 		this.gameSubView.unloginSwitch(user);
+	}
+
+	show() {
+		super.show();
+		this.mediator.emit(Events.MULTIPLAYER_SEARCH);
 	}
 }

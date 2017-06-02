@@ -283,7 +283,11 @@ class Authorize {
 			score: 0
 		}
 		Object.assign(this.user, this.anonymUser);
-		
+
+		Authorize.__instance = this;
+	}
+
+	init() {
 		this.showForGuest();
 
 		this.service.getUsername(xhr => {
@@ -295,8 +299,6 @@ class Authorize {
 				this.showForGuest();
 			}
 		});
-
-		Authorize.__instance = this;
 	}
 
 	loadUserScore() {
@@ -18626,10 +18628,10 @@ class Settings {
 		];
 
 		this.variantsX = this.hintsFieldElement.offsetWidth * 0.05;
-		this.variantsY = this.mapY;
 		this.variantsXSize = this.hintsFieldElement.offsetWidth * 0.9;
 		this.variantsYSize = this.fullMapSize * 0.1;
-		this.betweenVariants = this.fullMapSize * 0.15;
+		this.betweenVariants = this.fullMapSize * 0.125;
+		this.variantsY = this.mapY + this.fullMapSize / 2 + this.betweenVariants - this.variantsYSize;
 
 		this.variantCircls = [
 			[this.circleRed, this.circlePink, this.circleSad],
@@ -21189,12 +21191,13 @@ class MultiPlayer extends __WEBPACK_IMPORTED_MODULE_0__baseview_js__["a" /* defa
 		this.mediator.subscribe(__WEBPACK_IMPORTED_MODULE_8__game_events_js__["a" /* default */].MULTIPLAYER_GAME_START, this.onStartGame.bind(this));
 		this.mediator.subscribe(__WEBPACK_IMPORTED_MODULE_8__game_events_js__["a" /* default */].MULTIPLAYER_QUIT_CONFIRMED, this.onQuitConfirm.bind(this));
 		this.mediator.subscribe(__WEBPACK_IMPORTED_MODULE_8__game_events_js__["a" /* default */].MULTIPLAYER_EXIT_TO_MENU, this.onExit.bind(this));
-		this.mediator.subscribe(__WEBPACK_IMPORTED_MODULE_8__game_events_js__["a" /* default */].MULTIPLAYER_PLAY_AGAIN, this.onQuitConfirm.bind(this));
+		this.mediator.subscribe(__WEBPACK_IMPORTED_MODULE_8__game_events_js__["a" /* default */].MULTIPLAYER_PLAY_AGAIN, this.onPlayAgain.bind(this));
 	}
 
 	onSearch() {
 		this.ws = new __WEBPACK_IMPORTED_MODULE_9__game_transport_js__["a" /* default */]();
 		this.ws.open();
+		console.log('la');
 	}
 
 	onStartGame(args) {
@@ -21209,6 +21212,13 @@ class MultiPlayer extends __WEBPACK_IMPORTED_MODULE_0__baseview_js__["a" /* defa
 		this.mediator.emit(__WEBPACK_IMPORTED_MODULE_8__game_events_js__["a" /* default */].PLAY_NEW_GAME);
 	}
 
+	onPlayAgain() {
+		this.ws.close();
+		this.get().removeChild(this.gameSubView.get());
+		this.get().appendChild(this.startSubView.get());
+		this.mediator.emit(__WEBPACK_IMPORTED_MODULE_8__game_events_js__["a" /* default */].MULTIPLAYER_SEARCH);
+	}
+
 	onQuitConfirm() {
 		this.ws.close();
 		this.get().removeChild(this.gameSubView.get());
@@ -21218,7 +21228,8 @@ class MultiPlayer extends __WEBPACK_IMPORTED_MODULE_0__baseview_js__["a" /* defa
 	onExit() {
 		this.ws.close();
 		this.get().removeChild(this.gameSubView.get());
-		this.get().appendChild(this.startSubView.get());	this.router.go('/');
+		this.get().appendChild(this.startSubView.get());	
+		this.router.go('/');
 	}
 
 	render() {
@@ -21231,6 +21242,11 @@ class MultiPlayer extends __WEBPACK_IMPORTED_MODULE_0__baseview_js__["a" /* defa
 
 	unloginSwitch(user) {
 		this.gameSubView.unloginSwitch(user);
+	}
+
+	show() {
+		super.show();
+		this.mediator.emit(__WEBPACK_IMPORTED_MODULE_8__game_events_js__["a" /* default */].MULTIPLAYER_SEARCH);
 	}
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = MultiPlayer;
@@ -21313,6 +21329,7 @@ class Register extends __WEBPACK_IMPORTED_MODULE_0__baseview_js__["a" /* default
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__baseview_js__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__components_BaseBlock_baseblock_js__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__start_js__ = __webpack_require__(88);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__start_js___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__start_js__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__game_js__ = __webpack_require__(87);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__game_strategies_single_strategy_js__ = __webpack_require__(82);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__game_manager_js__ = __webpack_require__(31);
@@ -21339,7 +21356,7 @@ class SinglePlayer extends __WEBPACK_IMPORTED_MODULE_0__baseview_js__["a" /* def
 		
 		this.get().removeChild(this.back.get());
 
-		this.startSubView = new __WEBPACK_IMPORTED_MODULE_2__start_js__["a" /* default */]();
+		// this.startSubView = new SinglePlayerStart();
 		this.gameSubView = new __WEBPACK_IMPORTED_MODULE_3__game_js__["a" /* default */]();
 
 		this.router = new __WEBPACK_IMPORTED_MODULE_7__modules_router_js__["a" /* default */]();
@@ -21347,8 +21364,8 @@ class SinglePlayer extends __WEBPACK_IMPORTED_MODULE_0__baseview_js__["a" /* def
 
 		this.render();
 
-		this.mediator.subscribe(__WEBPACK_IMPORTED_MODULE_8__game_events_js__["a" /* default */].GAME_START, this.onStartGame.bind(this));
-		this.mediator.subscribe(__WEBPACK_IMPORTED_MODULE_8__game_events_js__["a" /* default */].QUIT_CONFIRMED, this.onQuitConfirm.bind(this));
+		// this.mediator.subscribe(Events.GAME_START, this.onStartGame.bind(this));
+		this.mediator.subscribe(__WEBPACK_IMPORTED_MODULE_8__game_events_js__["a" /* default */].QUIT_CONFIRMED, this.onExit.bind(this));
 		this.mediator.subscribe(__WEBPACK_IMPORTED_MODULE_8__game_events_js__["a" /* default */].EXIT_TO_MENU, this.onExit.bind(this));
 	}
 
@@ -21356,25 +21373,25 @@ class SinglePlayer extends __WEBPACK_IMPORTED_MODULE_0__baseview_js__["a" /* def
 		this.gameManager = new __WEBPACK_IMPORTED_MODULE_5__game_manager_js__["a" /* default */]();
 		this.gameManager.setStrategy(new __WEBPACK_IMPORTED_MODULE_4__game_strategies_single_strategy_js__["a" /* default */]());
 
-		this.get().removeChild(this.startSubView.get());
+		// this.get().removeChild(this.startSubView.get());
 		this.get().appendChild(this.gameSubView.get());
 		
 		this.mediator.emit(__WEBPACK_IMPORTED_MODULE_8__game_events_js__["a" /* default */].PLAY_NEW_GAME);
 	}
 
-	onQuitConfirm() {
-		this.get().removeChild(this.gameSubView.get());
-		this.get().appendChild(this.startSubView.get());
-	}
+	// onQuitConfirm() {
+	// 	this.get().removeChild(this.gameSubView.get());
+	// 	this.get().appendChild(this.startSubView.get());
+	// }
 
 	onExit() {
 		this.get().removeChild(this.gameSubView.get());
-		this.get().appendChild(this.startSubView.get());
+		// this.get().appendChild(this.startSubView.get());
 		this.router.go('/');
 	}
 
 	render() {
-		this.get().appendChild(this.startSubView.get());
+		// this.get().appendChild(this.startSubView.get());
 	}
 
 	loginSwitch(user) {
@@ -21383,6 +21400,16 @@ class SinglePlayer extends __WEBPACK_IMPORTED_MODULE_0__baseview_js__["a" /* def
 
 	unloginSwitch(user) {
 		this.gameSubView.unloginSwitch(user);
+	}
+
+	show() {
+		super.show();
+		this.onStartGame();
+	}
+
+	hide() {
+		super.hide();
+		this.gameSubView.reset();
 	}
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = SinglePlayer;
@@ -24109,8 +24136,6 @@ class MultiplayerStrategy {
 		}
 	}
 
-	
-
 	isAbleTower(place) {
 		for (let i = 0; i < this.settings.checkpoints.length; i++){
 			if (place.coordinates[0] == this.settings.checkpoints[i][0] && place.coordinates[1] == this.settings.checkpoints[i][1]) {
@@ -24153,7 +24178,6 @@ class MultiplayerStrategy {
 			y: field.coordinates[0]
 		}, knd)
 	}
-		
 
 	onOverField(field) {
 	//	field.field.setStroke(this.isAbleTower(field) ? 'green' : 'red');
@@ -24230,7 +24254,7 @@ class MultiplayerStrategy {
 		}
 	}
 
-	onClickStayVariant(field, kind, currentNewTower){
+	onClickStayVariant(field, kind, currentNewTower) {
 		for (let i = 0; i < this.fieldsNewTower.length; i++){
 			let xCoord = this.fieldsNewTower[i]['coordinates'][0];
 			let yCoord = this.fieldsNewTower[i]['coordinates'][1];
@@ -24488,7 +24512,7 @@ class MultiplayerStrategy {
 		if (this.enemiesNumber < this.settings.numberMonstersInWave) {
 			if (this.betweenEnemies > 10) {
 				let monster = new __WEBPACK_IMPORTED_MODULE_2__gameObjects_monster_js__["a" /* default */](this.settings.triangl, this.enemiesNumber);
-				monster.health += this.settings.addHPInWave * (this.wave - 1);
+				// monster.health += this.settings.addHPInWave * (this.wave - 1);
 				this.enemies.push(monster);
 				this.betweenEnemies = 0;
 				this.enemiesNumber++;
@@ -24528,7 +24552,7 @@ class MultiplayerStrategy {
 			if (this.enemies[i].killed) {
 				this.enemies.splice(i, 1);
 				this.score++;
-				this.mediator.emit(__WEBPACK_IMPORTED_MODULE_10__events_js__["a" /* default */].GET_SCORE, {
+				this.mediator.emit(__WEBPACK_IMPORTED_MODULE_10__events_js__["a" /* default */].MULTIPLAYER_GET_SCORE, {
 					score: this.score
 				})
   			}
@@ -24553,6 +24577,7 @@ class MultiplayerStrategy {
   				}
   			}
   		}
+
   		if (this.fl) {
   			for (let j = 0; j < this.arg.enemyDamages.length; j++) {
   				//console.log('88888888888888888888888888888888888888888888888888888')
@@ -24585,7 +24610,7 @@ class MultiplayerStrategy {
 				i--;
 				let damage = this.settings.damage + this.settings.addDamageInWave * (this.wave - 1);
 				this.throneHealth -= damage;
-				this.mediator.emit(__WEBPACK_IMPORTED_MODULE_10__events_js__["a" /* default */].THRONE_DAMAGE, {
+				this.mediator.emit(__WEBPACK_IMPORTED_MODULE_10__events_js__["a" /* default */].MULTIPLAYER_THRONE_DAMAGE, {
 					health: (this.throneHealth > 0 ? this.throneHealth : 0)
 				})
 				if (this.throneHealth <= 0) {
@@ -24596,6 +24621,7 @@ class MultiplayerStrategy {
 				}
 			}
 		}
+
 		if ((this.enemies.length === 0) && (this.enemiesNumber >= this.settings.numberMonstersInWave)) {
 			this.status = 'playerStep';
 			this.wave++;
@@ -24778,6 +24804,8 @@ class SingleStrategy {
 			star: 0,
 		};
 
+		this.fieldsWith = [];
+
 		this.state = {};
 
 		//this.fields[3][4].tower = new StarTower(
@@ -24814,6 +24842,7 @@ class SingleStrategy {
 			fieldsWithCircles: this.fieldsWithCircles,
 			fieldsWithPentagons: this.fieldsWithPentagons,
 			fieldsWithStars: this.fieldsWithStars,
+			fieldsWith: this.fieldsWith,
 			checkpoints: this.checkpoints,
 		}
 	}
@@ -25461,7 +25490,7 @@ router.register('/multiplayer/', new __WEBPACK_IMPORTED_MODULE_6__views_multipla
 router.start();
 
 const auth = new __WEBPACK_IMPORTED_MODULE_7__services_authorize_js__["a" /* default */]();
-
+auth.init();
 
 /***/ }),
 /* 85 */
@@ -25609,6 +25638,12 @@ class MultiPlayerGame extends __WEBPACK_IMPORTED_MODULE_0__baseview_js__["a" /* 
 		this.CRagainButton.get().innerHTML = 'Начать сначала';
 	}
 
+	reset() {
+		this.waveBlock_text.get().innerHTML = 1;
+		this.scoreBlock_text.get().innerHTML = 0;
+		this.HPBlock_text.get().innerHTML = 100;
+	}
+
 	makeListeners() {
 
 		this.mediator.subscribe(__WEBPACK_IMPORTED_MODULE_3__game_events_js__["a" /* default */].MULTIPLAYER_GAME_START, (args) => {
@@ -25634,9 +25669,7 @@ class MultiPlayerGame extends __WEBPACK_IMPORTED_MODULE_0__baseview_js__["a" /* 
 			this.HPBlock_text.get().innerHTML = args.health;
 		})
 		this.mediator.subscribe(__WEBPACK_IMPORTED_MODULE_3__game_events_js__["a" /* default */].MULTIPLAYER_PLAY_AGAIN, () => {
-			this.waveBlock_text.get().innerHTML = 1;
-			this.scoreBlock_text.get().innerHTML = 0;
-			this.HPBlock_text.get().innerHTML = 100;
+			this.reset();
 		})
 
 		this.quitButton.on('click', () => {
@@ -25652,26 +25685,31 @@ class MultiPlayerGame extends __WEBPACK_IMPORTED_MODULE_0__baseview_js__["a" /* 
 			this.mediator.emit(__WEBPACK_IMPORTED_MODULE_3__game_events_js__["a" /* default */].MULTIPLAYER_QUIT_CONFIRMED, {
 				score: parseInt((this.scoreBlock_text.get().innerHTML))
 			});
+			this.reset();
 		})
 
 		this.exitButton.on('click', () => {
 			this.get().removeChild(this.finishWindow.get());
 			this.mediator.emit(__WEBPACK_IMPORTED_MODULE_3__game_events_js__["a" /* default */].MULTIPLAYER_EXIT_TO_MENU);
+			this.reset();
 		})
 
 		this.againButton.on('click', () => {
 			this.get().removeChild(this.finishWindow.get());
 			this.mediator.emit(__WEBPACK_IMPORTED_MODULE_3__game_events_js__["a" /* default */].MULTIPLAYER_PLAY_AGAIN);
+			this.reset();
 		})
 
 		this.CRexitButton.on('click', () => {
 			this.get().removeChild(this.CRWindow.get());
 			this.mediator.emit(__WEBPACK_IMPORTED_MODULE_3__game_events_js__["a" /* default */].MULTIPLAYER_EXIT_TO_MENU);
+			this.reset();
 		})
 
 		this.CRagainButton.on('click', () => {
 			this.get().removeChild(this.CRWindow.get());
 			this.mediator.emit(__WEBPACK_IMPORTED_MODULE_3__game_events_js__["a" /* default */].MULTIPLAYER_PLAY_AGAIN);
+			this.reset();
 		})
 	}
 
@@ -25759,31 +25797,24 @@ class MultiPlayerStart extends __WEBPACK_IMPORTED_MODULE_0__baseview_js__["a" /*
 			align: 'center'
 		});
 		this.message = new __WEBPACK_IMPORTED_MODULE_1__components_BaseBlock_baseblock_js__["a" /* default */]('div');
-		this.newGame = new __WEBPACK_IMPORTED_MODULE_1__components_BaseBlock_baseblock_js__["a" /* default */]('button', {
-			align: 'center'
-		});
-		this.newGame.get().innerHTML = 'Найти союзника';
+		this.message.get().innerHTML = 'Поиск союзника...'
 
 		this.render();
 		this.makeListeners();
 	}
 
 	makeListeners() {
-		this.newGame.on('click', (event) => {
-			event.preventDefault();
-			this.message.get().innerHTML = 'Поиск...';
-			this.newGame.get().disabled = true;
-			this.mediator.emit(__WEBPACK_IMPORTED_MODULE_3__game_events_js__["a" /* default */].MULTIPLAYER_SEARCH);
-		})
 
 		this.mediator.subscribe(__WEBPACK_IMPORTED_MODULE_3__game_events_js__["a" /* default */].MULTIPLAYER_GAME_START, () => {
-			this.message.get().innerHTML = '';
-			this.newGame.get().disabled = false;
+			this.message.get().innerHTML = 'Поиск союзника...';
 		})
 
 		this.mediator.subscribe(__WEBPACK_IMPORTED_MODULE_3__game_events_js__["a" /* default */].MULTIPLAYER_CONNECTION_REFUSED, () => {
 			this.message.get().innerHTML = 'Не удалось установить соединение';
-			this.newGame.get().disabled = false;
+		})
+
+		this.mediator.subscribe(__WEBPACK_IMPORTED_MODULE_3__game_events_js__["a" /* default */].MULTIPLAYER_PLAY_AGAIN, () => {
+			this.message.get().innerHTML = 'Поиск союзника...';
 		})
 	}
 
@@ -25791,7 +25822,7 @@ class MultiPlayerStart extends __WEBPACK_IMPORTED_MODULE_0__baseview_js__["a" /*
 		this.get().appendChild(this.padd.get());
 		this.padd.get().appendChild(this.list.get());
 		this.list.get().appendChild(this.message.get());
-		this.list.get().appendChild(this.newGame.get());
+		// this.list.get().appendChild(this.newGame.get());
 	}
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = MultiPlayerStart;
@@ -25939,13 +25970,7 @@ class SinglePlayerGame extends __WEBPACK_IMPORTED_MODULE_0__baseview_js__["a" /*
 			this.HPBlock_text.get().innerHTML = args.health;
 		})
 		this.mediator.subscribe(__WEBPACK_IMPORTED_MODULE_3__game_events_js__["a" /* default */].PLAY_AGAIN, () => {
-			this.waveBlock_text.get().innerHTML = 1;
-			this.scoreBlock_text.get().innerHTML = 0;
-			this.HPBlock_text.get().innerHTML = 100;
-		})
-
-		this.quitButton.on('click', () => {
-			this.get().appendChild(this.quitConfirm.get());
+			this.reset();
 		})
 
 		this.quitCancelButton.on('click', () => {
@@ -25957,17 +25982,26 @@ class SinglePlayerGame extends __WEBPACK_IMPORTED_MODULE_0__baseview_js__["a" /*
 			this.mediator.emit(__WEBPACK_IMPORTED_MODULE_3__game_events_js__["a" /* default */].QUIT_CONFIRMED, {
 				score: parseInt((this.scoreBlock_text.get().innerHTML))
 			});
+			this.reset();
 		})
 
 		this.exitButton.on('click', () => {
 			this.get().removeChild(this.finishWindow.get());
 			this.mediator.emit(__WEBPACK_IMPORTED_MODULE_3__game_events_js__["a" /* default */].EXIT_TO_MENU);
+			this.reset();
 		})
 
 		this.againButton.on('click', () => {
 			this.get().removeChild(this.finishWindow.get());
 			this.mediator.emit(__WEBPACK_IMPORTED_MODULE_3__game_events_js__["a" /* default */].PLAY_AGAIN);
+			this.reset();
 		})
+	}
+
+	reset() {
+		this.waveBlock_text.get().innerHTML = 1;
+		this.scoreBlock_text.get().innerHTML = 0;
+		this.HPBlock_text.get().innerHTML = 100;
 	}
 
 	render() {
@@ -26017,59 +26051,53 @@ class SinglePlayerGame extends __WEBPACK_IMPORTED_MODULE_0__baseview_js__["a" /*
 
 /***/ }),
 /* 88 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ (function(module, exports) {
 
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__baseview_js__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__components_BaseBlock_baseblock_js__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__game_mediator_js__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__game_events_js__ = __webpack_require__(5);
+// 'use strict';
 
+// import BaseView from '../baseview.js'
+// import BaseBlock from '../../components/BaseBlock/baseblock.js'
+// import Mediator from '../../game/mediator.js'
+// import Events from '../../game/events.js'
 
+// export default
+// class SinglePlayerStart extends BaseView {
+// 	constructor() {
+// 		super('div', {
+// 			class: 'singleplayer__start'
+// 		});
 
+// 		this.mediator = new Mediator();
 
+// 		this.padd = new BaseBlock('div', {
+// 			class: 'padd'
+// 		});
+// 		this.list = new BaseBlock('div', {
+// 			class: 'list',
+// 			align: 'center'
+// 		});
+// 		this.newGame = new BaseBlock('button', {
+// 			align: 'center'
+// 		});
+// 		this.newGame.get().innerHTML = 'Начать игру';
 
+// 		this.render();
+// 		this.makeListeners();
+// 	}
 
+// 	makeListeners() {
+// 		this.newGame.on('click', (event) => {
+// 			event.preventDefault();
+// 			this.mediator.emit(Events.GAME_START);
+// 		})
+// 	}
 
-class SinglePlayerStart extends __WEBPACK_IMPORTED_MODULE_0__baseview_js__["a" /* default */] {
-	constructor() {
-		super('div', {
-			class: 'singleplayer__start'
-		});
-
-		this.mediator = new __WEBPACK_IMPORTED_MODULE_2__game_mediator_js__["a" /* default */]();
-
-		this.padd = new __WEBPACK_IMPORTED_MODULE_1__components_BaseBlock_baseblock_js__["a" /* default */]('div', {
-			class: 'padd'
-		});
-		this.list = new __WEBPACK_IMPORTED_MODULE_1__components_BaseBlock_baseblock_js__["a" /* default */]('div', {
-			class: 'list',
-			align: 'center'
-		});
-		this.newGame = new __WEBPACK_IMPORTED_MODULE_1__components_BaseBlock_baseblock_js__["a" /* default */]('button', {
-			align: 'center'
-		});
-		this.newGame.get().innerHTML = 'Начать игру';
-
-		this.render();
-		this.makeListeners();
-	}
-
-	makeListeners() {
-		this.newGame.on('click', (event) => {
-			event.preventDefault();
-			this.mediator.emit(__WEBPACK_IMPORTED_MODULE_3__game_events_js__["a" /* default */].GAME_START);
-		})
-	}
-
-	render() {
-		this.get().appendChild(this.padd.get());
-		this.padd.get().appendChild(this.list.get());
-		this.list.get().appendChild(this.newGame.get());
-	}
-}
-/* harmony export (immutable) */ __webpack_exports__["a"] = SinglePlayerStart;
-
+// 	render() {
+// 		this.get().appendChild(this.padd.get());
+// 		this.padd.get().appendChild(this.list.get());
+// 		this.list.get().appendChild(this.newGame.get());
+// 	}
+// }
 
 
 /***/ }),
