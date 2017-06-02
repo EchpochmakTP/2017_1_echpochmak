@@ -60,6 +60,19 @@ class WebSocketService {
 		});
 	}
 
+	//sendNewTower(coord, kind) {
+	//	this.sendObject({
+	//		type: 'techpark.game.base.ClientSnap',
+	//		content: {
+	//			square: {
+	//				x: coord.x,
+	//				y: coord.y,
+	//				comb: kind
+	//			},
+	//		}
+	//	});
+	//}
+
 	sendObject(message) {
 		if (message.content) {
 			message.content = JSON.stringify(message.content);
@@ -90,12 +103,22 @@ class WebSocketService {
 		} else if (object.type === 'techpark.game.base.ServerMazeSnap') {
 			const obj = {};
 			obj.map = object.content.map;
+			obj.combinations = object.content.combinations;
 			if (object.content.user === this.authorize.user.username) {
 				obj.myself = true;
 			} else {
 				obj.myself = false;
 			}
 			this.mediator.emit(Events.MULTIPLAYER_NEW_MAP_SNAPSHOT, obj);
+			
+		} else if (object.type === 'techpark.game.base.ServerWaveSnap') {
+			let obj = {};
+			obj.enemyDamages = object.content.enemyDamages;
+			obj.route = object.content.route;
+			obj.points = object.content.points;
+			obj.throneDamages = object.content.throneDamages;
+			obj.wave = object.content.wave;
+			this.mediator.emit(Events.MULTIPLAYER_NEW_WAVE_STARTED, obj);
 		}
 	}
 }

@@ -81,8 +81,8 @@ class Scene {
 		}
 
 		for (let i = 0; i < this.state.fieldsWithPentagons.length; i++) {
-			if (this.state.fieldsWithPentagons[i].tower.bulletes) {
-				this.gameLayer.add(this.state.fieldsWithPentagons[i].tower.bulletes);
+			if (this.state.fieldsWithPentagons[i].tower.bulletes.length) {
+				this.gameLayer.add(this.state.fieldsWithPentagons[i].tower.bulletes[0]);
 			}
 		}
 
@@ -90,7 +90,14 @@ class Scene {
 			for (let j = 0; j < this.state.fieldsWithStars[i].tower.bulletes.length; j++) {
 				this.gameLayer.add(this.state.fieldsWithStars[i].tower.bulletes[j]);
 			}
-		}		
+		}
+
+		for (let i = 0; i < this.state.fieldsWith.length; i++) {
+			for (let j = 0; j < this.state.fieldsWith[i].tower.waves.length; j++) {
+				this.gameLayer.add(this.state.fieldsWith[i].tower.waves[j].draw);
+			}
+		}
+
 
 		for (let i = 0; i < this.state.checkpoints.length ; i++) {
 			this.gameLayer.add(this.state.checkpoints[i].draw);

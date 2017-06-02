@@ -30,7 +30,7 @@ class Settings {
 		this.numberTowersInStep = 3;
 
 		this.addHPInWave = 50;
-		this.numberMonstersInWave = 20;
+		this.numberMonstersInWave = 10;
 		this.bulletRadius = 5;
 		this.laserWidth = 8;
 		this.numberChangesColors = 6;
@@ -41,6 +41,10 @@ class Settings {
 		this.circleTowerDamage = 10;
 		this.pentagonTpwerDamage = 10;
 		this.starTowerDamage = 10;
+
+		this.circleWaveMinRadius = this.fieldSize;
+		this.circleWaveMaxRadius = 2 * this.fieldSize;
+		this.waveWidth = 8;
 
 		this.circleRed = {
 			name: 'circleRed',
@@ -158,12 +162,24 @@ class Settings {
 
 		this.type = {
 			'o': 0,
+			'#': this.stone,
 			'a': this.circleRed,
 			'b': this.circlePink,
 			'c': this.circleSad,
 			'd': this.circleBlue,
 			'e': this.circleGreen,
 			'f': this.circleYellow,
+		}
+
+		this.typeRev = {
+			0: 'o', 
+			'stone': '#',
+			'circleRed':'a',
+			'circlePink':'b', 
+			'circleSad':'c',
+			'circleBlue':'d', 
+			'circleGreen':'e',
+			'circleYellow':'f', 
 		}
 	}
 }

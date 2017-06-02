@@ -6,6 +6,7 @@ import PentagonTower from '../gameObjects/pentagontower.js'
 import StarTower from '../gameObjects/startower.js'
 import VariantBlock from '../variantBlock.js'
 import Arrow from '../gameObjects/arrow.js'
+import TowerWave from '../gameObjects/towerwave.js'
 import Mediator from '../mediator.js'
 import Events from '../events.js'
 import WebSocketService from '../transport.js'
@@ -22,8 +23,9 @@ class MultiplayerStrategy {
 	init() {
 
 		console.log('multi_strategy');
-
+		this.fl = true;
 		this.timer = 0;
+		this.arg = {};
 
 		this.mediator = new Mediator();
 		this.settings = new Settings();
@@ -41,6 +43,7 @@ class MultiplayerStrategy {
 		this.fieldsWithCircles = [];
 		this.fieldsWithPentagons = [];
 		this.fieldsWithStars = [];
+		this.fieldsWith = [];
 		this.variantsShow = [];
 		this.enemies = [];
 		this.throneHealth = this.settings.throneHealth;
@@ -117,10 +120,10 @@ class MultiplayerStrategy {
 					coordinates: [j, i],
 				};
 				if (!((i === 0) && ((j === 0) || (j === this.settings.mapSize - 1)) || (i === this.settings.mapSize - 1) && ((j === 0) || (j === this.settings.mapSize - 1)))) {
-					this.fields[j][i]['field'].addEventListener('click', () => {this.onClickField.call(this, this.fields[j][i])});
-					this.fields[j][i]['field'].addEventListener('tap', () => {this.onClickField.call(this, this.fields[j][i])});
-					this.fields[j][i]['field'].addEventListener('mouseover', () => {this.onOverField.call(this, this.fields[j][i])});
-					this.fields[j][i]['field'].addEventListener('mouseout', () => {this.onOutField.call(this, this.fields[j][i])});
+					this.fields[j][i]['field'].addEventListener('click', () => {this.onClickField.call(this, this.fields[j][i], 0)});
+					this.fields[j][i]['field'].addEventListener('tap', () => {this.onClickField.call(this, this.fields[j][i], 0)});
+					this.fields[j][i]['field'].addEventListener('mouseover', () => {this.onOverField.call(this, this.fields[j][i], 0)});
+					this.fields[j][i]['field'].addEventListener('mouseout', () => {this.onOutField.call(this, this.fields[j][i], 0)});
 				}
 
 			};
@@ -144,14 +147,15 @@ class MultiplayerStrategy {
 
 		this.state = {};
 
-		this.mediator.subscribe(Events.MULTIPLAYER_NEW_MAP_SNAPSHOT, 
-			this.generateTower.bind(this));
+		this.mediator.subscribe(Events.MULTIPLAYER_NEW_MAP_SNAPSHOT, this.generateTower.bind(this));
+		this.mediator.subscribe(Events.MULTIPLAYER_NEW_WAVE_STARTED, this.gameWave.bind(this));
 	}
 
 	gameStep() {
 		if (this.status === 'playerStep') {
 			this.playerStep();
 		} else {
+			
 			this.gameWave();
 		}
 
@@ -172,6 +176,7 @@ class MultiplayerStrategy {
 			fieldsWithCircles: this.fieldsWithCircles,
 			fieldsWithPentagons: this.fieldsWithPentagons,
 			fieldsWithStars: this.fieldsWithStars,
+			fieldsWith: this.fieldsWith,
 			checkpoints: this.checkpoints,
 		}
 	}
@@ -213,21 +218,14 @@ class MultiplayerStrategy {
 		return false;
 	}
 
-	onClickField(field) {
-		console.log(field.coordinates[0], field.coordinates[1]);
+	onClickField(field, knd) {
+		knd = knd || 0;
 		this.ws.sendNewTower({
 			x: field.coordinates[1],
 			y: field.coordinates[0]
-		})
+		}, knd)
 	}
-		//if (this.isAbleTower(field)){
-		//	this.generateTower(field);
-		//	this.variantsShow = [];
-		//	this.variantRects.length = 4;
-		//} else if (this.variantRects.length < 5) {
-		//	let waveButton = new VariantBlock(4, "You cant stop monsters");
-		//	this.variantRects.push(waveButton);
-		//}	
+		
 
 	onOverField(field) {
 	//	field.field.setStroke(this.isAbleTower(field) ? 'green' : 'red');
@@ -319,7 +317,6 @@ class MultiplayerStrategy {
 		this.fieldsNewTower = [];
 		this.variantsShow = [];
 		this.newStones = 0;
-		this.status = 'Wave';
 		for (let i = 0; i < 4; i++) {
 			this.variantRects[i].draw.setStroke('black');
 			this.variantRects[i].draw.removeEventListener('click', () => {this.onClickVariantRect.call(this, this.variantRects[i])});
@@ -399,20 +396,21 @@ class MultiplayerStrategy {
 	}
 
 	generateTower(arg) {
-		let updates = [];
+		this.fieldsWith = [];
 		for (let i = 0; i < arg.map.length; i++) {
 			for (let j = 0; j < arg.map.length; j++) {
 				if (arg.map[j][i] === 'o') {
 					this.fields[i][j].tower = 0;
-				} else if (this.fields[i][j].tower === 0){
+				} else if ((arg.map[j][i] >= 'a') && (arg.map[j][i] <= 'f')){
 					this.fields[i][j].tower = new CircleTower(
 						this.settings.type[arg.map[j][i]],
 						this.fields[i][j].field.getX() + this.settings.fieldSize / 2,
 						this.fields[i][j].field.getY() + this.settings.fieldSize / 2,
 						this.settings.fieldSize / 2 - 2
 					)
-					this.fields[i][j].tower.draw.addEventListener('click', () => {this.onClickField(this.fields[i][j])})
-					this.fields[i][j].tower.draw.addEventListener('tap', () => {this.onClickField(this.fields[i][j])})
+					this.fields[i][j].tower.draw.addEventListener('click', () => {this.onClickField(this.fields[i][j], arg.map[j][i])})
+					this.fields[i][j].tower.draw.addEventListener('tap', () => {this.onClickField(this.fields[i][j], arg.map[j][i])})
+					this.fieldsWith.push(this.fields[i][j])
 				} else if (arg.map[j][i] === '#') {
 					this.fields[i][j].tower = new CircleTower(
 						this.settings.stone,
@@ -429,9 +427,10 @@ class MultiplayerStrategy {
 					)
 					this.fields[i][j].tower.draw.addEventListener('click', () => {this.onClickField(this.fields[i][j])})
 					this.fields[i][j].tower.draw.addEventListener('tap', () => {this.onClickField(this.fields[i][j])})
+					this.fieldsWith.push(this.fields[i][j]);
 				}
-				else if (this.fields[i][j].tower.kind != this.settings.type[arg.map[j][i]]) {
-					this.fields[i][j].tower = new CircleTower(
+				else {
+					this.fields[i][j].tower = new PentagonTower(
 						this.settings.type[arg.map[j][i]],
 						this.fields[i][j].field.getX() + this.settings.fieldSize / 2,
 						this.fields[i][j].field.getY() + this.settings.fieldSize / 2,
@@ -439,9 +438,11 @@ class MultiplayerStrategy {
 					)
 					this.fields[i][j].tower.draw.addEventListener('click', () => {this.onClickField(this.fields[i][j])})
 					this.fields[i][j].tower.draw.addEventListener('tap', () => {this.onClickField(this.fields[i][j])})
+					this.fieldsWith.push(this.fields[i][j]);
 				}
 			}
 		}
+		console.log(arg.combinatios);
 		this.updateState();
 		this.scene.setState(this.state);
 		this.scene.render();
@@ -538,96 +539,106 @@ class MultiplayerStrategy {
 		}
 	}
 
-	gameWave() {
-
-		if (this.path.length === 0) {
-			this.path = this.findPath(this.settings.checkpoints);
+	gameWave(arg) {
+		if (arg) {
+			this.arg = arg;
+		}
+		this.status = 'gameWave';
+		this.path = this.arg.route;
+  
+		for (let i = 0; i < this.settings.mapSize; i++){
+			for (let j = 0; j < this.settings.mapSize; j++){
+				if (this.fields[i][j].tower === 0) {
+					this.fields[i][j]['field'].removeEventListener('click', () => {this.onClickField.call(this, this.fields[i][j])});
+					this.fields[i][j]['field'].removeEventListener('tap', () => {this.onClickField.call(this, this.fields[i][j])});
+					this.fields[i][j]['field'].removeEventListener('mouseover', () => {this.onOverField.call(this, this.fields[i][j])});
+					this.fields[i][j]['field'].removeEventListener('mouseout', () => {this.onOutField.call(this, this.fields[i][j])});
+				}
+			}
 		}
 
 		if (this.enemiesNumber < this.settings.numberMonstersInWave) {
 			if (this.betweenEnemies > 10) {
-				let monster = new Monster(this.settings.triangl);
+				let monster = new Monster(this.settings.triangl, this.enemiesNumber);
 				monster.health += this.settings.addHPInWave * (this.wave - 1);
 				this.enemies.push(monster);
 				this.betweenEnemies = 0;
-				for (let i = 0; i < this.fieldsWithCircles.length; i++){
-					this.fieldsWithCircles[i].tower.bulletes.push([]);
-				}
 				this.enemiesNumber++;
 			} else {
 				this.betweenEnemies++;
 			}
 		}
 
-		for (let i = 0; i < this.fieldsWithCircles.length; i++){
-			for (let j = 0; j < this.enemies.length; j++){
-				let distY = this.enemies[j].draw.getY() - this.fieldsWithCircles[i].tower.draw.getY();
-				let distX = this.enemies[j].draw.getX() - this.fieldsWithCircles[i].tower.draw.getX();
-				if (Math.pow(distX * distX + distY * distY, 0.5) <= this.fieldsWithCircles[i].tower.radiusFight){
-					if (this.betweenBulles >= 2) {
-						this.fieldsWithCircles[i].tower.fire(j);
-						this.betweenBulles = 0;
-						break;	
-					} else {
-						this.betweenBulles++;
-					}
-					
-				};
-			};
-			for (let j = 0; j < this.fieldsWithCircles[i].tower.bulletes.length; j++){
-				for (let s = 0; s < this.fieldsWithCircles[i].tower.bulletes[j].length; s++){
-					let distY = this.enemies[j].draw.getY() - this.fieldsWithCircles[i].tower.bulletes[j][s].getY();
-					let distX = this.enemies[j].draw.getX() - this.fieldsWithCircles[i].tower.bulletes[j][s].getX();
-					if (Math.abs(distX) < this.enemies[j].kind.size && Math.abs(distY) < this.enemies[j].kind.size){
-						this.fieldsWithCircles[i].tower.bulletes[j].splice(s, 1);
-						this.enemies[j].health -= this.settings.circleTowerDamage;
-						continue;
-					}
-					let stepX = this.settings.bulletStep / Math.pow(1 + Math.pow(distY/distX, 2), 0.5) * Math.abs(distX) / distX;
-					let stepY = Math.pow(this.settings.bulletStep * this.settings.bulletStep - stepX * stepX, 0.5) * Math.abs(distY) / distY;
-					this.fieldsWithCircles[i].tower.bulletes[j][s].setX(this.fieldsWithCircles[i].tower.bulletes[j][s].getX() + stepX);
-					this.fieldsWithCircles[i].tower.bulletes[j][s].setY(this.fieldsWithCircles[i].tower.bulletes[j][s].getY() + stepY);
-				};
-			};
-		};
+		for (let i = 0; i < this.fieldsWith.length; i++){
+			
+			if ((this.fieldsWith[i].tower.waves.length === 0) || (this.fieldsWith[i].tower.waves[this.fieldsWith[i].tower.waves.length - 1].draw.getInnerRadius() > this.settings.circleWaveMinRadius)) {
 
-		for (let i = 0; i < this.fieldsWithPentagons.length; i++) {
-			this.fieldsWithPentagons[i].tower.bulletes = 0;
-			for (let j = 0; j < this.enemies.length; j++) {
-				let distY = this.enemies[j].draw.getY() - this.fieldsWithPentagons[i].tower.draw.getY();
-				let distX = this.enemies[j].draw.getX() - this.fieldsWithPentagons[i].tower.draw.getX();
-				if (Math.pow(distX * distX + distY * distY, 0.5) <= this.fieldsWithPentagons[i].tower.radiusFight){
-					this.fieldsWithPentagons[i].tower.fire(this.enemies[j]);
-					break;
-				}
+				let wave = new TowerWave(
+					this.fieldsWith[i].tower.kind,
+					this.fieldsWith[i].tower.draw.getX(),
+					this.fieldsWith[i].tower.draw.getY(),
+					this.fieldsWith[i].tower.draw.getRadius()
+				)
+				this.fieldsWith[i].tower.waves.push(wave);
 			}
-		}
+			if (this.fieldsWith[i].tower.waves[0].draw.getInnerRadius() > this.settings.circleWaveMaxRadius) {
+				this.fieldsWith[i].tower.waves.shift();
+			}
+			for (let j = 0; j < this.fieldsWith[i].tower.waves.length; j++) {
+				
+				let oldInnerRadius = this.fieldsWith[i].tower.waves[j].draw.getInnerRadius()
+				let oldOuterRadius = this.fieldsWith[i].tower.waves[j].draw.getOuterRadius()
 
-		for (let i = 0; i < this.fieldsWithStars.length; i++) {
-			this.fieldsWithStars[i].tower.bulletes = [];
-			for (let j = 0; j < this.enemies.length; j++) {
-				let distY = this.enemies[j].draw.getY() - this.fieldsWithStars[i].tower.draw.getY();
-				let distX = this.enemies[j].draw.getX() - this.fieldsWithStars[i].tower.draw.getX();
-				if (Math.pow(distX * distX + distY * distY, 0.5) <= this.fieldsWithStars[i].tower.radiusFight){
-					this.fieldsWithStars[i].tower.fire(this.enemies[j]);
-					break;
-				}
-			}
-			for (let j = this.enemies.length - 1; j >= 0; j--) {
-				let distY = this.enemies[j].draw.getY() - this.fieldsWithStars[i].tower.draw.getY();
-				let distX = this.enemies[j].draw.getX() - this.fieldsWithStars[i].tower.draw.getX();
-				if (Math.pow(distX * distX + distY * distY, 0.5) <= this.fieldsWithStars[i].tower.radiusFight){
-					this.fieldsWithStars[i].tower.fire(this.enemies[j]);
-					break;
-				}
-			}
+				this.fieldsWith[i].tower.waves[j].draw.setInnerRadius(oldInnerRadius + 2);
+				this.fieldsWith[i].tower.waves[j].draw.setOuterRadius(oldOuterRadius + 2);
+  			}
 		}
 
 		for (let i = 0; i < this.enemies.length; i++) {
-			let place = this.path[this.enemies[i].numberTurns];
-			let distX = -this.enemies[i].draw.getX() + (this.settings.mapX + place[0] * (this.settings.fieldSize + 2) + this.settings.fieldSize / 2);
-			let distY = -this.enemies[i].draw.getY() + (this.settings.mapY + place[1] * (this.settings.fieldSize + 2) + this.settings.fieldSize / 2);
+			let color = this.enemies[i].kind.color;
+			this.enemies[i].draw.setFill(color);
+			if (this.enemies[i].killed) {
+				this.enemies.splice(i, 1);
+				this.score++;
+				this.mediator.emit(Events.GET_SCORE, {
+					score: this.score
+				})
+  			}
+		}
 
+		for (let i = 0; i < this.enemies.length; i++) {
+			for (let j = 0; j < this.arg.enemyDamages.length; j++) {
+				if (this.enemies[i].number === this.arg.enemyDamages[j].enemy.number) {
+					if (Math.abs(this.enemies[i].draw.getX() - this.settings.mapX - this.arg.enemyDamages[j].coordinateY * this.settings.fieldSize) < 100) {
+						if (Math.abs(this.enemies[i].draw.getY() - this.settings.mapY - this.arg.enemyDamages[j].coordinateX * this.settings.fieldSize) < 100) {
+							this.enemies[i].paintRed();
+							this.enemies[i].killed = this.arg.enemyDamages[j].enemy.dead;
+							//console.log(this.arg.enemyDamages[j].enemy.dead);
+						} else {
+							//console.log('99999999999999999999999999999999999999999')
+							//console.log(Math.abs(this.enemies[i].draw.getX() - this.settings.mapX - this.arg.enemyDamages[j].coordinateY * this.settings.fieldSize))
+							//console.log(Math.abs(this.enemies[i].draw.getY() - this.settings.mapY - this.arg.enemyDamages[j].coordinateX * this.settings.fieldSize))
+							//console.log(this.enemies[i].killed)
+
+						}
+					}
+  				}
+  			}
+  		}
+  		if (this.fl) {
+  			for (let j = 0; j < this.arg.enemyDamages.length; j++) {
+  				//console.log('88888888888888888888888888888888888888888888888888888')
+  				//console.log(this.arg.enemyDamages[j].coordinateX, this.arg.enemyDamages[j].coordinateY, this.arg.enemyDamages[j].enemy.number, this.arg.enemyDamages[j].enemy.dead);
+  			}
+  			this.fl = false;
+  		}
+  		
+
+		for (let i = 0; i < this.enemies.length; i++) {
+			let place = this.path[this.enemies[i].numberTurns];
+			let distX = -this.enemies[i].draw.getX() + (this.settings.mapX + place['y'] * (this.settings.fieldSize + 2) + this.settings.fieldSize / 2);
+			let distY = -this.enemies[i].draw.getY() + (this.settings.mapY + place['x'] * (this.settings.fieldSize + 2) + this.settings.fieldSize / 2);
+			
 			if (Math.abs(distX) < this.enemies[i].kind.size && Math.abs(distY) < this.enemies[i].kind.size){
 				this.enemies[i].numberTurns++;
 				continue;
@@ -635,35 +646,14 @@ class MultiplayerStrategy {
 
 			let stepX = this.settings.monsterStep / Math.pow(1 + Math.pow(distY/distX, 2), 0.5) * Math.abs(distX) / distX;
 			let stepY = Math.pow(this.settings.monsterStep * this.settings.monsterStep - stepX * stepX, 0.5) * Math.abs(distY) / distY;
+			
 			this.enemies[i].draw.setX(this.enemies[i].draw.getX() + stepX);
 			this.enemies[i].draw.setY(this.enemies[i].draw.getY() + stepY);
-
-			if (this.enemies[i].killed) {
-				this.enemies.splice(i, 1);
-				for (let j = 0; j < this.fieldsWithCircles.length; j++){
-					this.fieldsWithCircles[j].tower.bulletes.splice(i, 1);
-				}
-				i--;
-				continue;
-			}
-
-			if (this.enemies[i].health <= 0) {
-				this.enemies[i].killedTics++;
-				this.enemies[i].killed = true;
-				this.enemies[i].paintRed();
-				this.score++;
-				this.mediator.emit(Events.GET_SCORE, {
-					score: this.score
-				})
-			}
 		}
 
 		for (let i = 0; i < this.enemies.length; i++) {
 			if (this.enemies[i].numberTurns >= this.path.length) {
 				this.enemies.splice(i, 1);
-				for (let s = 0; s < this.fieldsWithCircles.length; s++){
-					this.fieldsWithCircles[s].tower.bulletes.splice(i, 1);
-				}
 				i--;
 				let damage = this.settings.damage + this.settings.addDamageInWave * (this.wave - 1);
 				this.throneHealth -= damage;
@@ -678,13 +668,10 @@ class MultiplayerStrategy {
 				}
 			}
 		}
-
 		if ((this.enemies.length === 0) && (this.enemiesNumber >= this.settings.numberMonstersInWave)) {
 			this.status = 'playerStep';
 			this.wave++;
-			this.mediator.emit(Events.NEW_WAVE_STARTED, {
-				wave: this.wave
-			});
+			this.arg = {};
 
 			this.enemiesNumber = 0;
 			for (let i = 0; i < this.settings.mapSize; i++){
@@ -697,52 +684,10 @@ class MultiplayerStrategy {
 					}
 				}
 			}
-			for (let i = 0; i < this.fieldsWithCircles.length; i++){
-				this.fieldsWithCircles[i].tower.bulletes = [];
-			}
-			for (let i = 0; i < this.fieldsWithPentagons.length; i++){
-				this.fieldsWithPentagons[i].tower.bulletes = 0;
-			}
-			for (let i = 0; i < this.fieldsWithStars.length; i++){
-				this.fieldsWithStars[i].tower.bulletes = [];
-			}
 			this.path = [];
-		}
-	}
-
-	findPath(checkpoints) {
-
-		let matrix = Array(this.settings.mapSize);
-		for (let i = 0; i < this.settings.mapSize; ++i) {
-			matrix[i] = Array(this.settings.mapSize);
-		}
-
-		for (let i = 0; i < this.settings.mapSize; ++i) {
-			for (let j = 0; j < this.settings.mapSize; ++j) {
-				if (this.fields[i][j].tower && this.fields[i][j].tower !== 0) {
-					matrix[j][i] = 1;
-				} else {
-					matrix[j][i] = 0;
-				}
+			for (let i = 0; i < this.fieldsWith.length; i++){
+				this.fieldsWith[i].tower.waves = [];
 			}
 		}
-
-		const finder = new PF.BiAStarFinder({
-			allowDiagonal: true,
-			heuristic: PF.Heuristic.euclidean
-		});
-
-		let path = [];
-		for (let i = 1; i < checkpoints.length; i++) {
-			let subStart = checkpoints[i - 1];
-			let subFinish = checkpoints[i];
-
-			const grid = new PF.Grid(matrix);
-			let subPath = finder.findPath(subStart[0], subStart[1], subFinish[0], subFinish[1], grid);
-
-			path = path.concat(subPath);
-		}
-
-		return(path);
 	}
 }
