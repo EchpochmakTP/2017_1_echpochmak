@@ -5,7 +5,7 @@ export default
 class TowerWave {
 	constructor(name, x, y, radius) {
 		this.settings = new Settings();
-		this.draw = new Konva.Circle({
+		this.draw = new Konva.Ring({
 			x: x,
 			y: y,
 			innerRadius: radius,

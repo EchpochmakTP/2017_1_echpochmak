@@ -39,6 +39,7 @@ class SingleStrategy {
 		this.fieldsWithCircles = [];
 		this.fieldsWithPentagons = [];
 		this.fieldsWithStars = [];
+		this.fieldsWith = [];
 		this.variantsShow = [];
 		this.enemies = [];
 		this.throneHealth = this.settings.throneHealth;

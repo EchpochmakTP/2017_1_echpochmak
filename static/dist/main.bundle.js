@@ -18507,7 +18507,7 @@ class Settings {
 		this.numberTowersInStep = 3;
 
 		this.addHPInWave = 50;
-		this.numberMonstersInWave = 20;
+		this.numberMonstersInWave = 10;
 		this.bulletRadius = 5;
 		this.laserWidth = 8;
 		this.numberChangesColors = 6;
@@ -18519,7 +18519,7 @@ class Settings {
 		this.pentagonTpwerDamage = 10;
 		this.starTowerDamage = 10;
 
-		this.circleWaveMinRadius = this.fieldSize / 2;
+		this.circleWaveMinRadius = this.fieldSize;
 		this.circleWaveMaxRadius = 2 * this.fieldSize;
 		this.waveWidth = 8;
 
@@ -18639,12 +18639,24 @@ class Settings {
 
 		this.type = {
 			'o': 0,
+			'#': this.stone,
 			'a': this.circleRed,
 			'b': this.circlePink,
 			'c': this.circleSad,
 			'd': this.circleBlue,
 			'e': this.circleGreen,
 			'f': this.circleYellow,
+		}
+
+		this.typeRev = {
+			0: 'o', 
+			'stone': '#',
+			'circleRed':'a',
+			'circlePink':'b', 
+			'circleSad':'c',
+			'circleBlue':'d', 
+			'circleGreen':'e',
+			'circleYellow':'f', 
 		}
 	}
 }
@@ -20281,7 +20293,7 @@ class PentagonTower {
 			strokeWidth: 0
 		});
 		this.kind = name;
-		this.bulletes = 0;
+		this.bulletes = [];
 		this.radiusFight = name.radiusFight;
 		this.waves = [];
 	}
@@ -20291,7 +20303,7 @@ class PentagonTower {
 		let y1 = this.draw.getY();
 		let x2 = enemie.draw.getX();
 		let y2 = enemie.draw.getY();
-		this.bulletes = new __WEBPACK_IMPORTED_MODULE_1_konva___default.a.Line({
+		this.bulletes[0] = new __WEBPACK_IMPORTED_MODULE_1_konva___default.a.Line({
 			points: [x1, y1, x2, y2],
 			stroke: this.kind.colors[0],
 			strokeWidth: this.settings.laserWidth,
@@ -20503,8 +20515,8 @@ class Scene {
 		}
 
 		for (let i = 0; i < this.state.fieldsWithPentagons.length; i++) {
-			if (this.state.fieldsWithPentagons[i].tower.bulletes) {
-				this.gameLayer.add(this.state.fieldsWithPentagons[i].tower.bulletes);
+			if (this.state.fieldsWithPentagons[i].tower.bulletes.length) {
+				this.gameLayer.add(this.state.fieldsWithPentagons[i].tower.bulletes[0]);
 			}
 		}
 
@@ -20514,11 +20526,9 @@ class Scene {
 			}
 		}
 
-		let fieldWith = this.state.fieldsWithCircles + this.state.fieldsWithPentagons + this.state.fieldsWithStars;
-
-		for (let i = 0; i < fieldWith.length; i++) {
-			for (let j = 0; j < fieldWith[i].tower.waves.length; j++) {
-				this.gameLayer.add(fieldWith[i].tower.waves[j].draw);
+		for (let i = 0; i < this.state.fieldsWith.length; i++) {
+			for (let j = 0; j < this.state.fieldsWith[i].tower.waves.length; j++) {
+				this.gameLayer.add(this.state.fieldsWith[i].tower.waves[j].draw);
 			}
 		}
 
@@ -20603,6 +20613,19 @@ class WebSocketService {
 		});
 	}
 
+	//sendNewTower(coord, kind) {
+	//	this.sendObject({
+	//		type: 'techpark.game.base.ClientSnap',
+	//		content: {
+	//			square: {
+	//				x: coord.x,
+	//				y: coord.y,
+	//				comb: kind
+	//			},
+	//		}
+	//	});
+	//}
+
 	sendObject(message) {
 		if (message.content) {
 			message.content = JSON.stringify(message.content);
@@ -20633,12 +20656,22 @@ class WebSocketService {
 		} else if (object.type === 'techpark.game.base.ServerMazeSnap') {
 			const obj = {};
 			obj.map = object.content.map;
+			obj.combinations = object.content.combinations;
 			if (object.content.user === this.authorize.user.username) {
 				obj.myself = true;
 			} else {
 				obj.myself = false;
 			}
 			this.mediator.emit(__WEBPACK_IMPORTED_MODULE_2__events_js__["a" /* default */].MULTIPLAYER_NEW_MAP_SNAPSHOT, obj);
+			
+		} else if (object.type === 'techpark.game.base.ServerWaveSnap') {
+			let obj = {};
+			obj.enemyDamages = object.content.enemyDamages;
+			obj.route = object.content.route;
+			obj.points = object.content.points;
+			obj.throneDamages = object.content.throneDamages;
+			obj.wave = object.content.wave;
+			this.mediator.emit(__WEBPACK_IMPORTED_MODULE_2__events_js__["a" /* default */].MULTIPLAYER_NEW_WAVE_STARTED, obj);
 		}
 	}
 }
@@ -23848,7 +23881,7 @@ class RegisterForm extends __WEBPACK_IMPORTED_MODULE_0__Form_form_js__["a" /* de
 class TowerWave {
 	constructor(name, x, y, radius) {
 		this.settings = new __WEBPACK_IMPORTED_MODULE_0__settings_js__["a" /* default */]();
-		this.draw = new __WEBPACK_IMPORTED_MODULE_1_konva___default.a.Circle({
+		this.draw = new __WEBPACK_IMPORTED_MODULE_1_konva___default.a.Ring({
 			x: x,
 			y: y,
 			innerRadius: radius,
@@ -23908,8 +23941,9 @@ class MultiplayerStrategy {
 	init() {
 
 		console.log('multi_strategy');
-
+		this.fl = true;
 		this.timer = 0;
+		this.arg = {};
 
 		this.mediator = new __WEBPACK_IMPORTED_MODULE_9__mediator_js__["a" /* default */]();
 		this.settings = new __WEBPACK_IMPORTED_MODULE_0__settings_js__["a" /* default */]();
@@ -23927,6 +23961,7 @@ class MultiplayerStrategy {
 		this.fieldsWithCircles = [];
 		this.fieldsWithPentagons = [];
 		this.fieldsWithStars = [];
+		this.fieldsWith = [];
 		this.variantsShow = [];
 		this.enemies = [];
 		this.throneHealth = this.settings.throneHealth;
@@ -24003,10 +24038,10 @@ class MultiplayerStrategy {
 					coordinates: [j, i],
 				};
 				if (!((i === 0) && ((j === 0) || (j === this.settings.mapSize - 1)) || (i === this.settings.mapSize - 1) && ((j === 0) || (j === this.settings.mapSize - 1)))) {
-					this.fields[j][i]['field'].addEventListener('click', () => {this.onClickField.call(this, this.fields[j][i])});
-					this.fields[j][i]['field'].addEventListener('tap', () => {this.onClickField.call(this, this.fields[j][i])});
-					this.fields[j][i]['field'].addEventListener('mouseover', () => {this.onOverField.call(this, this.fields[j][i])});
-					this.fields[j][i]['field'].addEventListener('mouseout', () => {this.onOutField.call(this, this.fields[j][i])});
+					this.fields[j][i]['field'].addEventListener('click', () => {this.onClickField.call(this, this.fields[j][i], 0)});
+					this.fields[j][i]['field'].addEventListener('tap', () => {this.onClickField.call(this, this.fields[j][i], 0)});
+					this.fields[j][i]['field'].addEventListener('mouseover', () => {this.onOverField.call(this, this.fields[j][i], 0)});
+					this.fields[j][i]['field'].addEventListener('mouseout', () => {this.onOutField.call(this, this.fields[j][i], 0)});
 				}
 
 			};
@@ -24031,13 +24066,14 @@ class MultiplayerStrategy {
 		this.state = {};
 
 		this.mediator.subscribe(__WEBPACK_IMPORTED_MODULE_10__events_js__["a" /* default */].MULTIPLAYER_NEW_MAP_SNAPSHOT, this.generateTower.bind(this));
-		this.mediator.subscribe(__WEBPACK_IMPORTED_MODULE_10__events_js__["a" /* default */].NEW_WAVE_STARTED, this.gameWave.bind(this));
+		this.mediator.subscribe(__WEBPACK_IMPORTED_MODULE_10__events_js__["a" /* default */].MULTIPLAYER_NEW_WAVE_STARTED, this.gameWave.bind(this));
 	}
 
 	gameStep() {
 		if (this.status === 'playerStep') {
 			this.playerStep();
 		} else {
+			
 			this.gameWave();
 		}
 
@@ -24058,6 +24094,7 @@ class MultiplayerStrategy {
 			fieldsWithCircles: this.fieldsWithCircles,
 			fieldsWithPentagons: this.fieldsWithPentagons,
 			fieldsWithStars: this.fieldsWithStars,
+			fieldsWith: this.fieldsWith,
 			checkpoints: this.checkpoints,
 		}
 	}
@@ -24099,21 +24136,14 @@ class MultiplayerStrategy {
 		return false;
 	}
 
-	onClickField(field) {
-		console.log(field.coordinates[0], field.coordinates[1]);
+	onClickField(field, knd) {
+		knd = knd || 0;
 		this.ws.sendNewTower({
 			x: field.coordinates[1],
 			y: field.coordinates[0]
-		})
+		}, knd)
 	}
-		//if (this.isAbleTower(field)){
-		//	this.generateTower(field);
-		//	this.variantsShow = [];
-		//	this.variantRects.length = 4;
-		//} else if (this.variantRects.length < 5) {
-		//	let waveButton = new VariantBlock(4, "You cant stop monsters");
-		//	this.variantRects.push(waveButton);
-		//}	
+		
 
 	onOverField(field) {
 	//	field.field.setStroke(this.isAbleTower(field) ? 'green' : 'red');
@@ -24205,7 +24235,6 @@ class MultiplayerStrategy {
 		this.fieldsNewTower = [];
 		this.variantsShow = [];
 		this.newStones = 0;
-		this.status = 'Wave';
 		for (let i = 0; i < 4; i++) {
 			this.variantRects[i].draw.setStroke('black');
 			this.variantRects[i].draw.removeEventListener('click', () => {this.onClickVariantRect.call(this, this.variantRects[i])});
@@ -24285,20 +24314,21 @@ class MultiplayerStrategy {
 	}
 
 	generateTower(arg) {
-		let updates = [];
+		this.fieldsWith = [];
 		for (let i = 0; i < arg.map.length; i++) {
 			for (let j = 0; j < arg.map.length; j++) {
 				if (arg.map[j][i] === 'o') {
 					this.fields[i][j].tower = 0;
-				} else if (this.fields[i][j].tower === 0){
+				} else if ((arg.map[j][i] >= 'a') && (arg.map[j][i] <= 'f')){
 					this.fields[i][j].tower = new __WEBPACK_IMPORTED_MODULE_3__gameObjects_circletower_js__["a" /* default */](
 						this.settings.type[arg.map[j][i]],
 						this.fields[i][j].field.getX() + this.settings.fieldSize / 2,
 						this.fields[i][j].field.getY() + this.settings.fieldSize / 2,
 						this.settings.fieldSize / 2 - 2
 					)
-					this.fields[i][j].tower.draw.addEventListener('click', () => {this.onClickField(this.fields[i][j])})
-					this.fields[i][j].tower.draw.addEventListener('tap', () => {this.onClickField(this.fields[i][j])})
+					this.fields[i][j].tower.draw.addEventListener('click', () => {this.onClickField(this.fields[i][j], arg.map[j][i])})
+					this.fields[i][j].tower.draw.addEventListener('tap', () => {this.onClickField(this.fields[i][j], arg.map[j][i])})
+					this.fieldsWith.push(this.fields[i][j])
 				} else if (arg.map[j][i] === '#') {
 					this.fields[i][j].tower = new __WEBPACK_IMPORTED_MODULE_3__gameObjects_circletower_js__["a" /* default */](
 						this.settings.stone,
@@ -24315,9 +24345,10 @@ class MultiplayerStrategy {
 					)
 					this.fields[i][j].tower.draw.addEventListener('click', () => {this.onClickField(this.fields[i][j])})
 					this.fields[i][j].tower.draw.addEventListener('tap', () => {this.onClickField(this.fields[i][j])})
+					this.fieldsWith.push(this.fields[i][j]);
 				}
-				else if (this.fields[i][j].tower.kind != this.settings.type[arg.map[j][i]]) {
-					this.fields[i][j].tower = new __WEBPACK_IMPORTED_MODULE_3__gameObjects_circletower_js__["a" /* default */](
+				else {
+					this.fields[i][j].tower = new __WEBPACK_IMPORTED_MODULE_4__gameObjects_pentagontower_js__["a" /* default */](
 						this.settings.type[arg.map[j][i]],
 						this.fields[i][j].field.getX() + this.settings.fieldSize / 2,
 						this.fields[i][j].field.getY() + this.settings.fieldSize / 2,
@@ -24325,9 +24356,11 @@ class MultiplayerStrategy {
 					)
 					this.fields[i][j].tower.draw.addEventListener('click', () => {this.onClickField(this.fields[i][j])})
 					this.fields[i][j].tower.draw.addEventListener('tap', () => {this.onClickField(this.fields[i][j])})
+					this.fieldsWith.push(this.fields[i][j]);
 				}
 			}
 		}
+		console.log(arg.combinatios);
 		this.updateState();
 		this.scene.setState(this.state);
 		this.scene.render();
@@ -24425,8 +24458,11 @@ class MultiplayerStrategy {
 	}
 
 	gameWave(arg) {
-
-		this.path = arg.route;
+		if (arg) {
+			this.arg = arg;
+		}
+		this.status = 'gameWave';
+		this.path = this.arg.route;
   
 		for (let i = 0; i < this.settings.mapSize; i++){
 			for (let j = 0; j < this.settings.mapSize; j++){
@@ -24451,24 +24487,28 @@ class MultiplayerStrategy {
 			}
 		}
 
-		for (let i = 0; i < this.fieldsWithCircles.length; i++){
-			if ((this.fieldsWithCircles[i].tower.waves.length === 0) || (this.fieldsWithCircles[i].tower.waves[length - 1].draw.getRadius() > this.settings.circleWaveMinRadius)) {
+		for (let i = 0; i < this.fieldsWith.length; i++){
+			
+			if ((this.fieldsWith[i].tower.waves.length === 0) || (this.fieldsWith[i].tower.waves[this.fieldsWith[i].tower.waves.length - 1].draw.getInnerRadius() > this.settings.circleWaveMinRadius)) {
+
 				let wave = new __WEBPACK_IMPORTED_MODULE_8__gameObjects_towerwave_js__["a" /* default */](
-					this.fieldsWithCircles[i].tower.kind,
-					this.fieldsWithCircles[i].tower.draw.getX(),
-					this.fieldsWithCircles[i].tower.draw.getY(),
-					this.fieldsWithCircles[i].tower.draw.getRadius()
+					this.fieldsWith[i].tower.kind,
+					this.fieldsWith[i].tower.draw.getX(),
+					this.fieldsWith[i].tower.draw.getY(),
+					this.fieldsWith[i].tower.draw.getRadius()
 				)
-				this.fieldsWithCircles[i].tower.waves.push(wave);
+				this.fieldsWith[i].tower.waves.push(wave);
 			}
-			if (this.fieldsWithCircles[i].tower.waves[0].draw.getRadius() > this.settings.circleWaveMaxRadius) {
-				this.fieldsWithCircles[i].tower.waves.unshift();
+			if (this.fieldsWith[i].tower.waves[0].draw.getInnerRadius() > this.settings.circleWaveMaxRadius) {
+				this.fieldsWith[i].tower.waves.shift();
 			}
-			for (let j = 0; j < this.fieldsWithCircles[i].tower.waves.length; j++) {
-				let oldInnerRadius = this.fieldsWithCircles[i].tower.waves[j].draw.getInnerRadius()
-				let oldOuterRadius = this.fieldsWithCircles[i].tower.waves[j].draw.getOuterRadius()
-				this.fieldsWithCircles[i].tower.waves[j].draw.setInnerRadius(oldInnerRadius + 2);
-				this.fieldsWithCircles[i].tower.waves[j].draw.setOuterRadius(oldOuterRadius + 2);
+			for (let j = 0; j < this.fieldsWith[i].tower.waves.length; j++) {
+				
+				let oldInnerRadius = this.fieldsWith[i].tower.waves[j].draw.getInnerRadius()
+				let oldOuterRadius = this.fieldsWith[i].tower.waves[j].draw.getOuterRadius()
+
+				this.fieldsWith[i].tower.waves[j].draw.setInnerRadius(oldInnerRadius + 2);
+				this.fieldsWith[i].tower.waves[j].draw.setOuterRadius(oldOuterRadius + 2);
   			}
 		}
 
@@ -24485,19 +24525,38 @@ class MultiplayerStrategy {
 		}
 
 		for (let i = 0; i < this.enemies.length; i++) {
-			for (let j = 0; j < arg.enemyDamages.length; j++) {
-				if ((this.enemies[i].number === arg.enemyDamages[j].enemy.number) && (Math.abs(this.enemies[i].draw.getX() - arg.enemyDamages[j].coordinateX) < 10) && (Math.abs(this.enemies[i].draw.getY() - arg.enemyDamages[j].coordinateY) < 10)) {
-					this.enemies[i].paintRed();
-					this.enemies[i].killed = arg.enemyDamages[j].enemy.dead;
+			for (let j = 0; j < this.arg.enemyDamages.length; j++) {
+				if (this.enemies[i].number === this.arg.enemyDamages[j].enemy.number) {
+					if (Math.abs(this.enemies[i].draw.getX() - this.settings.mapX - this.arg.enemyDamages[j].coordinateY * this.settings.fieldSize) < 100) {
+						if (Math.abs(this.enemies[i].draw.getY() - this.settings.mapY - this.arg.enemyDamages[j].coordinateX * this.settings.fieldSize) < 100) {
+							this.enemies[i].paintRed();
+							this.enemies[i].killed = this.arg.enemyDamages[j].enemy.dead;
+							//console.log(this.arg.enemyDamages[j].enemy.dead);
+						} else {
+							//console.log('99999999999999999999999999999999999999999')
+							//console.log(Math.abs(this.enemies[i].draw.getX() - this.settings.mapX - this.arg.enemyDamages[j].coordinateY * this.settings.fieldSize))
+							//console.log(Math.abs(this.enemies[i].draw.getY() - this.settings.mapY - this.arg.enemyDamages[j].coordinateX * this.settings.fieldSize))
+							//console.log(this.enemies[i].killed)
+
+						}
+					}
   				}
   			}
   		}
+  		if (this.fl) {
+  			for (let j = 0; j < this.arg.enemyDamages.length; j++) {
+  				//console.log('88888888888888888888888888888888888888888888888888888')
+  				//console.log(this.arg.enemyDamages[j].coordinateX, this.arg.enemyDamages[j].coordinateY, this.arg.enemyDamages[j].enemy.number, this.arg.enemyDamages[j].enemy.dead);
+  			}
+  			this.fl = false;
+  		}
+  		
 
 		for (let i = 0; i < this.enemies.length; i++) {
 			let place = this.path[this.enemies[i].numberTurns];
-			let distX = -this.enemies[i].draw.getX() + (this.settings.mapX + place[0] * (this.settings.fieldSize + 2) + this.settings.fieldSize / 2);
-			let distY = -this.enemies[i].draw.getY() + (this.settings.mapY + place[1] * (this.settings.fieldSize + 2) + this.settings.fieldSize / 2);
-
+			let distX = -this.enemies[i].draw.getX() + (this.settings.mapX + place['y'] * (this.settings.fieldSize + 2) + this.settings.fieldSize / 2);
+			let distY = -this.enemies[i].draw.getY() + (this.settings.mapY + place['x'] * (this.settings.fieldSize + 2) + this.settings.fieldSize / 2);
+			
 			if (Math.abs(distX) < this.enemies[i].kind.size && Math.abs(distY) < this.enemies[i].kind.size){
 				this.enemies[i].numberTurns++;
 				continue;
@@ -24505,6 +24564,7 @@ class MultiplayerStrategy {
 
 			let stepX = this.settings.monsterStep / Math.pow(1 + Math.pow(distY/distX, 2), 0.5) * Math.abs(distX) / distX;
 			let stepY = Math.pow(this.settings.monsterStep * this.settings.monsterStep - stepX * stepX, 0.5) * Math.abs(distY) / distY;
+			
 			this.enemies[i].draw.setX(this.enemies[i].draw.getX() + stepX);
 			this.enemies[i].draw.setY(this.enemies[i].draw.getY() + stepY);
 		}
@@ -24526,10 +24586,10 @@ class MultiplayerStrategy {
 				}
 			}
 		}
-
 		if ((this.enemies.length === 0) && (this.enemiesNumber >= this.settings.numberMonstersInWave)) {
 			this.status = 'playerStep';
 			this.wave++;
+			this.arg = {};
 
 			this.enemiesNumber = 0;
 			for (let i = 0; i < this.settings.mapSize; i++){
@@ -24542,16 +24602,10 @@ class MultiplayerStrategy {
 					}
 				}
 			}
-			for (let i = 0; i < this.fieldsWithCircles.length; i++){
-				this.fieldsWithCircles[i].tower.waves = [];
-			}
-			for (let i = 0; i < this.fieldsWithPentagons.length; i++){
-				this.fieldsWithPentagons[i].tower.waves = [];
-			}
-			for (let i = 0; i < this.fieldsWithStars.length; i++){
-				this.fieldsWithStars[i].tower.waves = [];
-			}
 			this.path = [];
+			for (let i = 0; i < this.fieldsWith.length; i++){
+				this.fieldsWith[i].tower.waves = [];
+			}
 		}
 	}
 }
@@ -24617,6 +24671,7 @@ class SingleStrategy {
 		this.fieldsWithCircles = [];
 		this.fieldsWithPentagons = [];
 		this.fieldsWithStars = [];
+		this.fieldsWith = [];
 		this.variantsShow = [];
 		this.enemies = [];
 		this.throneHealth = this.settings.throneHealth;

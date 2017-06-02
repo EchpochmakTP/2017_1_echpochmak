@@ -81,8 +81,8 @@ class Scene {
 		}
 
 		for (let i = 0; i < this.state.fieldsWithPentagons.length; i++) {
-			if (this.state.fieldsWithPentagons[i].tower.bulletes) {
-				this.gameLayer.add(this.state.fieldsWithPentagons[i].tower.bulletes);
+			if (this.state.fieldsWithPentagons[i].tower.bulletes.length) {
+				this.gameLayer.add(this.state.fieldsWithPentagons[i].tower.bulletes[0]);
 			}
 		}
 
@@ -92,11 +92,9 @@ class Scene {
 			}
 		}
 
-		let fieldWith = this.state.fieldsWithCircles + this.state.fieldsWithPentagons + this.state.fieldsWithStars;
-
-		for (let i = 0; i < fieldWith.length; i++) {
-			for (let j = 0; j < fieldWith[i].tower.waves.length; j++) {
-				this.gameLayer.add(fieldWith[i].tower.waves[j].draw);
+		for (let i = 0; i < this.state.fieldsWith.length; i++) {
+			for (let j = 0; j < this.state.fieldsWith[i].tower.waves.length; j++) {
+				this.gameLayer.add(this.state.fieldsWith[i].tower.waves[j].draw);
 			}
 		}
 
