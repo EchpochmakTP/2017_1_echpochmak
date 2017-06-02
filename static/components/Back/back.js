@@ -14,13 +14,18 @@ class Back extends BaseBlock {
 			align: 'left'
 		});
 		this.link = new Link('', {
-			class: 'back__button'
+			class: 'back__button',
+			align: "center"
 		});
 		this.image = new BaseBlock('img', {
 			class: 'back__image',
-			src: '/img/back.png'
+			src: '/img/back.png',
+			align: 'center'
 		});
-		this.text = new BaseBlock('p');
+		this.text = new BaseBlock('div', {
+			class: 'back__text',
+			align: 'center'
+		});
 		this.text.get().innerHTML = 'Обратно в меню';
 
 		this.render();

@@ -34,9 +34,10 @@
 
 		&:hover {
 			border: 1px solid #0a3c59;
+			text-decoration: none;
 			text-shadow: #1e4158 0 1px 0;
 			background: #5c4a2f;
-			background: linear-gradient(to bottom, #c47d43, #826639);
+			background: linear-gradient(to top, #c47d43, #826639);
 			color: #e6c163;
 		}
 
