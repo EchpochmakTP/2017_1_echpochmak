@@ -20295,7 +20295,7 @@ class PentagonTower {
 			strokeWidth: 0
 		});
 		this.kind = name;
-		this.bulletes = [];
+		this.bulletes = 0;
 		this.radiusFight = name.radiusFight;
 		this.waves = [];
 	}
@@ -20305,7 +20305,7 @@ class PentagonTower {
 		let y1 = this.draw.getY();
 		let x2 = enemie.draw.getX();
 		let y2 = enemie.draw.getY();
-		this.bulletes[0] = new __WEBPACK_IMPORTED_MODULE_1_konva___default.a.Line({
+		this.bulletes = new __WEBPACK_IMPORTED_MODULE_1_konva___default.a.Line({
 			points: [x1, y1, x2, y2],
 			stroke: this.kind.colors[0],
 			strokeWidth: this.settings.laserWidth,
@@ -20517,8 +20517,8 @@ class Scene {
 		}
 
 		for (let i = 0; i < this.state.fieldsWithPentagons.length; i++) {
-			if (this.state.fieldsWithPentagons[i].tower.bulletes.length) {
-				this.gameLayer.add(this.state.fieldsWithPentagons[i].tower.bulletes[0]);
+			if (this.state.fieldsWithPentagons[i].tower.bulletes) {
+				this.gameLayer.add(this.state.fieldsWithPentagons[i].tower.bulletes);
 			}
 		}
 
@@ -24473,7 +24473,6 @@ class MultiplayerStrategy {
 	separateCourn(distX, distY, radius, anglStart, wave, swap) {
 		let alfa = Math.acos(distX / radius) / Math.PI / 2 * 360;
 		let beta = Math.acos(distY / radius) / Math.PI / 2 * 360;
-		console.log(alfa, beta)
 		let gama = 360 - 90 - alfa - beta;
 		let teta = 0;
 		if (swap) {
