@@ -148,7 +148,7 @@ class Settings {
 			this.pentagonGYR
 		];
 
-		this.variantsX = this.hintsFieldElement.offsetWidth * 0.0;
+		this.variantsX = this.hintsFieldElement.offsetWidth * 0.01;
 		this.variantsXSize = this.hintsFieldElement.offsetWidth * 0.9;
 		this.variantsYSize = this.fullMapSize * 0.1;
 		this.betweenVariants = this.fullMapSize * 0.125;
@@ -160,7 +160,7 @@ class Settings {
 			[this.circleGreen, this.circleYellow, this.circleRed]
 		];
 
-		this.messageX = this.hintsFieldElement.offsetWidth * 0.0;
+		this.messageX = this.hintsFieldElement.offsetWidth * 0.01;
 		this.messageY = this.mapY;
 		this.messageXSize = this.hintsFieldElement.offsetWidth * 0.9;
 		this.messageYSize = this.fullMapSize / 2;
