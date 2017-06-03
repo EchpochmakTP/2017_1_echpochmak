@@ -81,8 +81,8 @@ class Scene {
 		}
 
 		for (let i = 0; i < this.state.fieldsWithPentagons.length; i++) {
-			if (this.state.fieldsWithPentagons[i].tower.bulletes.length) {
-				this.gameLayer.add(this.state.fieldsWithPentagons[i].tower.bulletes[0]);
+			if (this.state.fieldsWithPentagons[i].tower.bulletes) {
+				this.gameLayer.add(this.state.fieldsWithPentagons[i].tower.bulletes);
 			}
 		}
 

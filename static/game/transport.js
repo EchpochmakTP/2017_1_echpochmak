@@ -48,30 +48,30 @@ class WebSocketService {
 		this.ws.close();
 	}
 
-	sendNewTower(coord) {
-		this.sendObject({
-			type: 'techpark.game.base.ClientSnap',
-			content: {
-				square: {
-					x: coord.x,
-					y: coord.y
-				},
-			}
-		});
-	}
-
-	//sendNewTower(coord, kind) {
+	//sendNewTower(coord) {
 	//	this.sendObject({
 	//		type: 'techpark.game.base.ClientSnap',
 	//		content: {
 	//			square: {
 	//				x: coord.x,
-	//				y: coord.y,
-	//				comb: kind
+	//				y: coord.y
 	//			},
 	//		}
 	//	});
 	//}
+
+	sendNewTower(coord, kind) {
+		this.sendObject({
+			type: 'techpark.game.base.ClientSnap',
+			content: {
+				square: {
+					x: coord.x,
+					y: coord.y,
+					comb: kind
+				},
+			}
+		});
+	}
 
 	sendObject(message) {
 		if (message.content) {

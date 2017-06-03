@@ -123,10 +123,10 @@ class MultiplayerStrategy {
 					coordinates: [j, i],
 				};
 				if (!((i === 0) && ((j === 0) || (j === this.settings.mapSize - 1)) || (i === this.settings.mapSize - 1) && ((j === 0) || (j === this.settings.mapSize - 1)))) {
-					this.fields[j][i]['field'].addEventListener('click', () => {this.onClickField.call(this, this.fields[j][i], 0)});
-					this.fields[j][i]['field'].addEventListener('tap', () => {this.onClickField.call(this, this.fields[j][i], 0)});
-					this.fields[j][i]['field'].addEventListener('mouseover', () => {this.onOverField.call(this, this.fields[j][i], 0)});
-					this.fields[j][i]['field'].addEventListener('mouseout', () => {this.onOutField.call(this, this.fields[j][i], 0)});
+					this.fields[j][i]['field'].addEventListener('click', () => {this.onClickField.call(this, this.fields[j][i])});
+					this.fields[j][i]['field'].addEventListener('tap', () => {this.onClickField.call(this, this.fields[j][i])});
+					this.fields[j][i]['field'].addEventListener('mouseover', () => {this.onOverField.call(this, this.fields[j][i])});
+					this.fields[j][i]['field'].addEventListener('mouseout', () => {this.onOutField.call(this, this.fields[j][i])});
 				}
 
 			};
@@ -222,12 +222,11 @@ class MultiplayerStrategy {
 		return false;
 	}
 
-	onClickField(field, knd) {
-		knd = knd || 0;
+	onClickField(field) {
 		this.ws.sendNewTower({
 			x: field.coordinates[1],
 			y: field.coordinates[0]
-		}, knd)
+		})
 	}
 
 	onOverField(field) {
@@ -411,8 +410,8 @@ class MultiplayerStrategy {
 						this.fields[i][j].field.getY() + this.settings.fieldSize / 2,
 						this.settings.fieldSize / 2 - 2
 					)
-					this.fields[i][j].tower.draw.addEventListener('click', () => {this.onClickField(this.fields[i][j], arg.map[j][i])})
-					this.fields[i][j].tower.draw.addEventListener('tap', () => {this.onClickField(this.fields[i][j], arg.map[j][i])})
+					this.fields[i][j].tower.draw.addEventListener('click', () => {this.onClickField(this.fields[i][j])})
+					this.fields[i][j].tower.draw.addEventListener('tap', () => {this.onClickField(this.fields[i][j])})
 					this.fieldsWith.push(this.fields[i][j])
 				} else if (arg.map[j][i] === '#') {
 					this.fields[i][j].tower = new CircleTower(
@@ -542,6 +541,28 @@ class MultiplayerStrategy {
 		}
 	}
 
+	separateWall(dist, radius, anglStart, wave) {
+		let alfa = Math.acos(dist / radius) / Math.PI / 2 * 360;
+		let gama = 360 - alfa * 2;
+		let teta = anglStart + alfa;
+		wave.draw.setAngle(gama);
+		wave.draw.setRotation(teta);
+	}
+
+	separateCourn(distX, distY, radius, anglStart, wave, swap) {
+		let alfa = Math.acos(distX / radius) / Math.PI / 2 * 360;
+		let beta = Math.acos(distY / radius) / Math.PI / 2 * 360;
+		let gama = 360 - 90 - alfa - beta;
+		let teta = 0;
+		if (swap) {
+			teta = anglStart + beta;
+		} else {
+			teta = anglStart + alfa;
+		}
+		wave.draw.setAngle(gama);
+		wave.draw.setRotation(teta);
+	}
+
 	gameWave(arg) {
 		if (arg) {
 			this.arg = arg;
@@ -584,17 +605,74 @@ class MultiplayerStrategy {
 				)
 				this.fieldsWith[i].tower.waves.push(wave);
 			}
-			if (this.fieldsWith[i].tower.waves[0].draw.getInnerRadius() > this.settings.circleWaveMaxRadius) {
-				this.fieldsWith[i].tower.waves.shift();
-			}
+			
+			
 			for (let j = 0; j < this.fieldsWith[i].tower.waves.length; j++) {
 				
-				let oldInnerRadius = this.fieldsWith[i].tower.waves[j].draw.getInnerRadius()
-				let oldOuterRadius = this.fieldsWith[i].tower.waves[j].draw.getOuterRadius()
+				let oldInnerRadius = this.fieldsWith[i].tower.waves[j].draw.getInnerRadius();
+				let oldOuterRadius = this.fieldsWith[i].tower.waves[j].draw.getOuterRadius();
+				let oldOpacity = this.fieldsWith[i].tower.waves[j].draw.getOpacity();
+				let stepOpacity = 1 / ((this.settings.circleWaveMaxRadius - this.fieldsWith[i].tower.draw.getRadius()) / (this.settings.waveStep) + 1);
 
-				this.fieldsWith[i].tower.waves[j].draw.setInnerRadius(oldInnerRadius + 2);
-				this.fieldsWith[i].tower.waves[j].draw.setOuterRadius(oldOuterRadius + 2);
+				this.fieldsWith[i].tower.waves[j].draw.setInnerRadius(oldInnerRadius + this.settings.waveStep);
+				this.fieldsWith[i].tower.waves[j].draw.setOuterRadius(oldOuterRadius + this.settings.waveStep);
+				//this.fieldsWith[i].tower.waves[j].draw.setOpacity(oldOpacity - stepOpacity);
+				this.fieldsWith[i].tower.waves[j].draw.setOpacity(oldOpacity);
   			}
+
+  			for (let t = 0; t < this.fieldsWith[i].tower.waves.length; t++) {
+				
+				//let vectors = [];
+				//vectors.push({'dist': Math.abs(this.fieldsWith[i].tower.draw.getX() - this.settings.mapX), 'vect': 'left'});
+				//vectors.push({'dist': Math.abs(this.fieldsWith[i].tower.draw.getX() - this.settings.mapX - this.settings.mapSize * (this.settings.fieldSize + 2)), 'vect': 'right'});
+				//vectors.push({'dist': Math.abs(this.fieldsWith[i].tower.draw.getY() - this.settings.mapY), 'vect': 'up'});
+				//vectors.push({'dist': Math.abs(this.fieldsWith[i].tower.draw.getY() - this.settings.mapY - this.settings.mapSize * (this.settings.fieldSize + 2)), 'vect': 'down'});
+				//let minDist = Math.min(...vectors);
+				//for (let s = 0; s < 4; s++) {
+				//	if vectors[s].dist === minDist {
+				//		minDist = vectors[s];
+				//	}
+				//}
+				let towerX = this.fieldsWith[i].tower.draw.getX();
+				let towerY = this.fieldsWith[i].tower.draw.getY();
+				let mapXLeft = this.settings.mapX;
+				let mapXRight = this.settings.mapX + this.settings.mapSize * (this.settings.fieldSize + 2);
+				let mapYUp = this.settings.mapY;
+				let mapYDown = this.settings.mapY + this.settings.mapSize * (this.settings.fieldSize + 2);
+				let waveRadius = this.fieldsWith[i].tower.waves[t].draw.getOuterRadius();
+				let wave = this.fieldsWith[i].tower.waves[t];
+				if (((towerX - mapXLeft) < waveRadius) && ((towerY - mapYUp) < waveRadius)) {
+					this.separateCourn(towerX - mapXLeft, towerY - mapYUp, waveRadius, 270, wave, true);
+				}
+				else if (((towerX - mapXLeft) < waveRadius) && ((mapYDown - towerY) < waveRadius)) {
+					this.separateCourn(towerX - mapXLeft, mapYDown - towerY, waveRadius, 180, wave);
+				}
+				else if (((mapXRight - towerX) < waveRadius) && ((mapYDown - towerY) < waveRadius)) {
+					this.separateCourn(mapXRight - towerX, mapYDown - towerY, waveRadius, 90, wave, true);
+				}
+				else if (((mapXRight - towerX) < waveRadius) && ((towerY - mapYUp) < waveRadius)) {
+					this.separateCourn(mapXRight - towerX, towerY - mapYUp, waveRadius, 0, wave);
+				}
+				else if ((towerX - mapXLeft) < waveRadius) {
+					this.separateWall(towerX - mapXLeft, waveRadius, 180, wave);
+				}
+				else if ((mapXRight - towerX) < waveRadius) {
+					this.separateWall(mapXRight - towerX, waveRadius, 0, wave);
+				}
+				else if ((towerY - mapYUp) < waveRadius) {
+					this.separateWall(towerY - mapYUp, waveRadius, 270, wave);
+				}
+				else if ((mapYDown - towerY) < waveRadius) {
+					this.separateWall(mapYDown - towerY, waveRadius, 90, wave);
+				}
+
+
+
+
+				if (this.fieldsWith[i].tower.waves[t].draw.getOuterRadius() > this.settings.circleWaveMaxRadius) {
+					this.fieldsWith[i].tower.waves.shift();
+				}
+			}
 		}
 
 		for (let i = 0; i < this.enemies.length; i++) {
@@ -616,27 +694,11 @@ class MultiplayerStrategy {
 						if (Math.abs(this.enemies[i].draw.getY() - this.settings.mapY - this.arg.enemyDamages[j].coordinateX * this.settings.fieldSize) < 100) {
 							this.enemies[i].paintRed();
 							this.enemies[i].killed = this.arg.enemyDamages[j].enemy.dead;
-							//console.log(this.arg.enemyDamages[j].enemy.dead);
-						} else {
-							//console.log('99999999999999999999999999999999999999999')
-							//console.log(Math.abs(this.enemies[i].draw.getX() - this.settings.mapX - this.arg.enemyDamages[j].coordinateY * this.settings.fieldSize))
-							//console.log(Math.abs(this.enemies[i].draw.getY() - this.settings.mapY - this.arg.enemyDamages[j].coordinateX * this.settings.fieldSize))
-							//console.log(this.enemies[i].killed)
-
 						}
 					}
   				}
   			}
   		}
-
-  		if (this.fl) {
-  			for (let j = 0; j < this.arg.enemyDamages.length; j++) {
-  				//console.log('88888888888888888888888888888888888888888888888888888')
-  				//console.log(this.arg.enemyDamages[j].coordinateX, this.arg.enemyDamages[j].coordinateY, this.arg.enemyDamages[j].enemy.number, this.arg.enemyDamages[j].enemy.dead);
-  			}
-  			this.fl = false;
-  		}
-  		
 
 		for (let i = 0; i < this.enemies.length; i++) {
 			let place = this.path[this.enemies[i].numberTurns];

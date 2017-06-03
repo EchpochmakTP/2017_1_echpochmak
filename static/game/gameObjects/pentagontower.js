@@ -19,7 +19,7 @@ class PentagonTower {
 			strokeWidth: 0
 		});
 		this.kind = name;
-		this.bulletes = [];
+		this.bulletes = 0;
 		this.radiusFight = name.radiusFight;
 		this.waves = [];
 	}
@@ -29,7 +29,7 @@ class PentagonTower {
 		let y1 = this.draw.getY();
 		let x2 = enemie.draw.getX();
 		let y2 = enemie.draw.getY();
-		this.bulletes[0] = new Konva.Line({
+		this.bulletes = new Konva.Line({
 			points: [x1, y1, x2, y2],
 			stroke: this.kind.colors[0],
 			strokeWidth: this.settings.laserWidth,

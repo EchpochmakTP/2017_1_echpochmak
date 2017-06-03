@@ -11,7 +11,8 @@ class CircleTower {
 			radius: radius,
 			stroke: 'black',
 			strokeWidth: 0,
-			fill: name.color
+			fill: name.color,
+			opacity: -0.5,
 		});
 		this.kind = name;
 		this.bulletes = [];

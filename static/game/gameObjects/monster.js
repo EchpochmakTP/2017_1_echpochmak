@@ -12,14 +12,14 @@ class Monster {
 			radius: name.size,
 			fill: name.color,
 			stroke: 'black',
-			strokeWidth: 0
+			strokeWidth: 0,
 		});
 		this.kind = name;
 		this.health = name.health;
 		this.numberTurns = 0;
 		this.killed = false;
 		this.killedTics = 0;
-		this.number = index
+		this.number = index;
 	}
 
 	paintRed() {
