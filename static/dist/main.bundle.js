@@ -25006,6 +25006,12 @@ class SingleStrategy {
 		};
 		this.fields[0][this.settings.mapSize - 1].field.setFill('DarkOliveGreen');
 		this.fields[this.settings.mapSize - 1][0].field.setFill('DarkOliveGreen');
+
+		this.startField = this.fields[this.settings.checkpoints[0][0]][this.settings.checkpoints[0][1]];
+		this.finishField = this.fields[this.settings.checkpoints[this.settings.checkpoints.length - 1][0]][this.settings.checkpoints[this.settings.checkpoints.length - 1][1]];
+
+		this.startField.field.setFill('rgba(255, 0, 0, 0.79)');
+		this.finishField.field.setFill('rgba(0, 251, 255, 0.79)');
 		
 		this.newStones = 0;
 		this.towers = {
